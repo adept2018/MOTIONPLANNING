@@ -26,27 +26,28 @@ bool MotionComputer::computeMotion() {
         int numberOfPoints = visibleCloud.size();
 
         if (numberOfPoints > 0) {
-            float theta = 0;
+            float theta = 0.0, tmp;
+            bool free_front = true;
 
             // Sum all angles
             for (int i = 0; i < numberOfPoints; i++) {
                 float x = visibleCloud.points[i].x;
                 float y = visibleCloud.points[i].y;
-                theta += atan(y / x);
+                tmp = atan(y / x);
+                theta += tmp;
+                // determine if there is an obsticle at the front:
+                if(fabs(tmp) < safe_angle)
+                   free_front = false;
             }
 
             // Dived angle by number of points
             float theta_w = theta / numberOfPoints;
 
-            // Offset to turn away from obstacle
-            float offset = 0.52;
-
             // Decide which way to turn away from obstacle
-            if (theta_w < 0) {
-                theta_w += offset;
-            }
-            else {
-                theta_w += -offset;
+            if(!free_front) {
+                theta_w += (theta_w < 0.0) ? turn_offset : -turn_offset;
+            } else {
+                theta_w = 0.0;  // go straigt
             }
 
             direction.push_back(cos(theta_w));

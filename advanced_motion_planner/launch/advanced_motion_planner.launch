@@ -14,7 +14,7 @@
   <node name="rplidarNodeClient" pkg="rplidar_ros" type="rplidarNodeClient" output="screen">
   </node>
 
-  <node name="bmp" pkg="advanced_motion_planner" type="bmp" output="screen">
+  <node name="AdvMotionPlan" pkg="advanced_motion_planner" type="bmp" output="screen">
   </node>
 
   <include file="$(find zed_wrapper)/launch/zed.launch">

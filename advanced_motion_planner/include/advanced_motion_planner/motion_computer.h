@@ -8,6 +8,11 @@
 #include <sensor_msgs/LaserScan.h>
 #include <advanced_motion_planner/laserscan_to_pointcloud.h>
 
+// Offset to turn away from obstacle
+const float turn_offset = 0.52;
+// safe agnle where car can go through within 2m range
+const float safe_angle = 0.24;
+
 class MotionComputer {
 private:
     LaserScanToPointCloud laserScanToPointCloud;
