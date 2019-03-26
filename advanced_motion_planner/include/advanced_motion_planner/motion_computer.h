@@ -16,27 +16,30 @@ struct Direction{
     X = x;
     Y = y;
     Omega = omega;
-  }
-}
+  };
+};
+
 class MotionComputer {
+
+public:
+    MotionComputer(ros::NodeHandle& nh);
+    bool computeMotion();
+    Direction getDirection();
+    void setDirection(Direction& dir);
+
 private:
     void scanCallBack(const sensor_msgs::LaserScan::ConstPtr& scan);
 
 public:
-    MotionComputer(ros::NodeHandle& nh);
-    void computeMotion();
-    Direction getDirection();
-    void setDirection(Direction& dir);
-
+    Direction mDirection;                          // OBS: race condition; kinda thread-safe; not simultaneous write on the members
+    pcl::PointCloud<pcl::PointXYZ> mCloud;         // allocate a buffer for that
 
 private:
     std::queue<sensor_msgs::LaserScan> mScanQueue; //
     ros::Subscriber mScanSub;                      // Subscriber:
     bool mAcquiredScan;                            // maybe not a member
     LaserScanToPointCloud mLaserScanToPointCloud;  //
-public:
-    Direction mDirection;                          // OBS: race condition; kinda thread-safe; not simultaneous write on the members
-    pcl::PointCloud<pcl::PointXYZ> mCloud;         // allocate a buffer for that
+
 };
 
 #endif //MOTION_COMPUTER_H

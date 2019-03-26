@@ -26,10 +26,10 @@ int main(int argc, char** argv) {
 
         float steeringAngle = 0.0f;
 
-        if (!motionComputer.visibleCloud.empty()) {
+        if (!motionComputer.mCloud.empty()) {
 
             // Computed angle
-            steeringAngle = motionComputer.direction[2];
+            steeringAngle = motionComputer.mDirection.Omega;
             if (steeringAngle > 0.34f) {
                 steeringAngle = 0.34f;
             }
@@ -45,8 +45,8 @@ int main(int argc, char** argv) {
             outputMsg.pose.position.y = 0;
             outputMsg.pose.position.z = 0;
 
-            outputMsg.pose.orientation.x = motionComputer.direction[0];
-            outputMsg.pose.orientation.y = motionComputer.direction[1];
+            outputMsg.pose.orientation.x = motionComputer.mDirection.X;
+            outputMsg.pose.orientation.y = motionComputer.mDirection.Y;
             outputMsg.pose.orientation.z = 0;
             outputMsg.pose.orientation.w = 0;
 
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 
             // Visible point cloud from lidar
             sensor_msgs::PointCloud2 pclmsg;
-            pcl::toROSMsg(motionComputer.visibleCloud, pclmsg);
+            pcl::toROSMsg(motionComputer.mCloud, pclmsg);
             pclmsg.header.frame_id = "bmp";
             pubCloudVisible.publish(pclmsg);
         }
@@ -73,14 +73,14 @@ int main(int argc, char** argv) {
         direction.pose.orientation.w = 0;
         pubDirection.publish(direction);
 
-        if (!motionComputer.invisibleCloud.empty()) {
-
-            // Non visible point cloud from lidar
-            sensor_msgs::PointCloud2 pclmsg;
-            pcl::toROSMsg(motionComputer.invisibleCloud, pclmsg);
-            pclmsg.header.frame_id = "bmp";
-            pubCloudInvisible.publish(pclmsg);
-        }
+        // if (!motionComputer.invisibleCloud.empty()) {
+        //
+        //     // Non visible point cloud from lidar
+        //     sensor_msgs::PointCloud2 pclmsg;
+        //     pcl::toROSMsg(motionComputer.invisibleCloud, pclmsg);
+        //     pclmsg.header.frame_id = "bmp";
+        //     pubCloudInvisible.publish(pclmsg);
+        // }
 
         ackermann_msgs::AckermannDriveStamped ackMsg;
 

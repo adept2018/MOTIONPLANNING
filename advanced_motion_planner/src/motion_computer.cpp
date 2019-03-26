@@ -19,7 +19,7 @@ void MotionComputer::setDirection(Direction& dir){
 }
 
 
-void MotionComputer::computeMotion() {
+bool MotionComputer::computeMotion() {
 
     while (!mScanQueue.empty()) {
 
@@ -29,9 +29,9 @@ void MotionComputer::computeMotion() {
 
         mCloud.clear();
 
-        mCloud = laserScanToPointCloud.scanToCloud(scan, true);
+        mCloud = mLaserScanToPointCloud.scanToCloud(scan, true);
 
-        int numberOfPoints = mCloud.size();
+        uint32_t numberOfPoints = mCloud.size();
 
         if (numberOfPoints > 0) {
 
@@ -63,4 +63,5 @@ void MotionComputer::computeMotion() {
             mDirection.Omega = theta_w;
         }
     }
+    return true;
 }
