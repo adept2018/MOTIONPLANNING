@@ -7,10 +7,16 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     MotionComputer motionComputer(nh);
 
+<<<<<<< Updated upstream
     pubPose = nh.advertise<geometry_msgs::PoseStamped>("bmp/pose", 10);
     pubCloudVisible = nh.advertise<sensor_msgs::PointCloud2>("bmp/cloud/visible", 10);
     pubCloudInvisible = nh.advertise<sensor_msgs::PointCloud2>("bmp/cloud/invisible", 10);
     pubDirection = nh.advertise<geometry_msgs::PoseStamped>("bmp/direction", 10);
+=======
+    pubPose = nh.advertise<geometry_msgs::PoseStamped>("amp/pose", 10);
+    pubCloud = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/visible", 10);
+    pubDirection = nh.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
+>>>>>>> Stashed changes
     pubAck = nh.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
 
     ros::Rate rate(40.0);
@@ -39,7 +45,11 @@ int main(int argc, char** argv) {
 
             // Computed direction
             geometry_msgs::PoseStamped outputMsg;
+<<<<<<< Updated upstream
             outputMsg.header.frame_id = "bmp";
+=======
+            outputMsg.header.frame_id = "amp";
+>>>>>>> Stashed changes
 
             outputMsg.pose.position.x = 0;
             outputMsg.pose.position.y = 0;
@@ -54,14 +64,23 @@ int main(int argc, char** argv) {
 
             // Visible point cloud from lidar
             sensor_msgs::PointCloud2 pclmsg;
+<<<<<<< Updated upstream
             pcl::toROSMsg(motionComputer.visibleCloud, pclmsg);
             pclmsg.header.frame_id = "bmp";
+=======
+            pcl::toROSMsg(motionComputer.cloud, pclmsg);
+            pclmsg.header.frame_id = "amp";
+>>>>>>> Stashed changes
             pubCloudVisible.publish(pclmsg);
         }
 
         // Vector showing forward direction
         geometry_msgs::PoseStamped direction;
+<<<<<<< Updated upstream
         direction.header.frame_id = "bmp";
+=======
+        direction.header.frame_id = "amp";
+>>>>>>> Stashed changes
 
         direction.pose.position.x = 0;
         direction.pose.position.y = 0;
@@ -73,6 +92,7 @@ int main(int argc, char** argv) {
         direction.pose.orientation.w = 0;
         pubDirection.publish(direction);
 
+<<<<<<< Updated upstream
         if (!motionComputer.invisibleCloud.empty()) {
 
             // Non visible point cloud from lidar
@@ -82,6 +102,8 @@ int main(int argc, char** argv) {
             pubCloudInvisible.publish(pclmsg);
         }
 
+=======
+>>>>>>> Stashed changes
         ackermann_msgs::AckermannDriveStamped ackMsg;
 
         // 0 or computed angle from motionComputer
