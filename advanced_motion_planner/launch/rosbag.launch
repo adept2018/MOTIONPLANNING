@@ -1,10 +1,6 @@
 <launch>
 
-<<<<<<< Updated upstream
-    <node name="bmp" pkg="advanced_motion_planner" type="bmp" output="screen">
-=======
     <node name="amp" pkg="advanced_motion_planner" type="amp" output="screen">
->>>>>>> Stashed changes
     </node>
 
 </launch>

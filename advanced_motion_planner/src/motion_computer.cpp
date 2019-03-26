@@ -1,10 +1,5 @@
 #include <advanced_motion_planner/motion_computer.h>
 
-<<<<<<< Updated upstream
-#define PI atan(1)*4;
-
-=======
->>>>>>> Stashed changes
 MotionComputer::MotionComputer(ros::NodeHandle &nh) {
     scan_sub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
 }
@@ -20,44 +15,6 @@ bool MotionComputer::computeMotion() {
         scan_queue.pop();
 
         direction.clear();
-<<<<<<< Updated upstream
-        visibleCloud.clear();
-        invisibleCloud.clear();
-
-        visibleCloud = laserScanToPointCloud.scanToCloud(scan, true);
-        invisibleCloud = laserScanToPointCloud.scanToCloud(scan, false);
-
-        int numberOfPoints = visibleCloud.size();
-
-        if (numberOfPoints > 0) {
-            float theta = 0;
-
-            // Sum all angles
-            for (int i = 0; i < numberOfPoints; i++) {
-                float x = visibleCloud.points[i].x;
-                float y = visibleCloud.points[i].y;
-                theta += atan(y / x);
-            }
-
-            // Dived angle by number of points
-            float theta_w = theta / numberOfPoints;
-
-            // Offset to turn away from obstacle
-            float offset = 0.52;
-
-            // Decide which way to turn away from obstacle
-            if (theta_w < 0) {
-                theta_w += offset;
-            }
-            else {
-                theta_w += -offset;
-            }
-
-            direction.push_back(cos(theta_w));
-            direction.push_back(sin(theta_w));
-            direction.push_back(theta_w);
-        }
-=======
         cloud.clear();
 
         cloud = laserScanToPointCloud.scanToCloud(scan);
@@ -88,7 +45,6 @@ bool MotionComputer::computeMotion() {
         direction.push_back(cos(theta_w));
         direction.push_back(sin(theta_w));
         direction.push_back(theta_w);
->>>>>>> Stashed changes
     }
     return true;
 }

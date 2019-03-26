@@ -10,21 +10,12 @@
 
 class LaserScanToPointCloud {
 private:
-<<<<<<< Updated upstream
-    bool filter(float range, float angle);
-    
-=======
 
->>>>>>> Stashed changes
 public:
     LaserScanToPointCloud() {
     }
 
-<<<<<<< Updated upstream
-    pcl::PointCloud<pcl::PointXYZ> scanToCloud(const sensor_msgs::LaserScan &scan, bool insideFilter);
-=======
     pcl::PointCloud<pcl::PointXYZ> scanToCloud(const sensor_msgs::LaserScan &scan);
->>>>>>> Stashed changes
 };
 
 #endif //LASERSCAN_TO_POINTCLOUD_H

@@ -1,9 +1,6 @@
 <!-- -*- mode: XML -*- -->
 <launch>
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
   <arg name="racecar_version" default="racecar-v2" />
   <arg name="run_camera" default="false"/>
 
@@ -18,11 +15,7 @@
   <node name="rplidarNodeClient" pkg="rplidar_ros" type="rplidarNodeClient" output="screen">
   </node>
 
-<<<<<<< Updated upstream
-  <node name="bmp" pkg="advanced_motion_planner" type="bmp" output="screen">
-=======
   <node name="amp" pkg="advanced_motion_planner" type="amp" output="screen">
->>>>>>> Stashed changes
   </node>
 
   <include file="$(find zed_wrapper)/launch/zed.launch">

@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(advanced_motion_planner)
-<<<<<<< Updated upstream
-=======
 set (CMAKE_CXX_STANDARD 11)
->>>>>>> Stashed changes
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
