@@ -16,6 +16,4 @@ ros::Publisher pubPose;
 ros::Publisher pubDirection;
 ros::Publisher pubAck;
 
-const float SteeringAngleLimit = 0.34;
-
 #endif //ADVANCED_MOTION_PLANNER_H

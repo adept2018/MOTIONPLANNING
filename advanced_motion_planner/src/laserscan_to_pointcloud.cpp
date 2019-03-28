@@ -1,19 +1,12 @@
 #include <advanced_motion_planner/laserscan_to_pointcloud.h>
+#include <advanced_motion_planner/amp_common.h>
 
 bool LaserScanToPointCloud::filter(float range, float angle) {
-  float max_range = 2.0;
-  float min_range = 0.3;
+  bool res;
 
-  if (range > max_range || range < min_range) {
-      return false;
-  }
+  res = (range > max_range || range < min_range) ? false : ((angle < -angle_range || angle > angle_range) ? false : true);
 
-  float angle_range = 0.5;
-  if (angle < -angle_range || angle > angle_range) {
-      return false;
-  }
-
-  return true;
+  return res;
 }
 
 pcl::PointCloud<pcl::PointXYZ> LaserScanToPointCloud::scanToCloud(const sensor_msgs::LaserScan &scan, bool insideFilter) {
@@ -23,11 +16,7 @@ pcl::PointCloud<pcl::PointXYZ> LaserScanToPointCloud::scanToCloud(const sensor_m
     for (int i = 0; i < scan.ranges.size(); ++i) {
 
         float r = scan.ranges[i];
-
-        // Offset of the lidar is 90 degrees
-        float pi = atan(1)*4;
-        float offset = pi/2;
-        float theta = scan.angle_min + i * scan.angle_increment + offset;
+        float theta = scan.angle_min + float(i) * scan.angle_increment + LIDAR_ANG_OFFSET;
 
         if (filter(r, theta) == insideFilter) {
           point.x = r * cos(theta);

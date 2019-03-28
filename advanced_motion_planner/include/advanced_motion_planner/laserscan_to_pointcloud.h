@@ -3,7 +3,6 @@
 
 #include <cmath>
 #include <sensor_msgs/LaserScan.h>
-
 // PCL specific includes:
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -11,7 +10,7 @@
 class LaserScanToPointCloud {
 private:
     bool filter(float range, float angle);
-    
+
 public:
     LaserScanToPointCloud() {
     }

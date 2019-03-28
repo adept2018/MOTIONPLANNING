@@ -1,6 +1,5 @@
 #include <advanced_motion_planner/motion_computer.h>
-
-#define PI atan(1)*4;
+#include <advanced_motion_planner/amp_common.h>
 
 MotionComputer::MotionComputer(ros::NodeHandle &nh) {
     scan_sub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
@@ -40,7 +39,7 @@ bool MotionComputer::computeMotion() {
                    free_front = false;
             }
 
-            // Dived angle by number of points
+            // Dived angle by number of points, i.e. average angle
             float theta_w = theta / numberOfPoints;
 
             // Decide which way to turn away from obstacle

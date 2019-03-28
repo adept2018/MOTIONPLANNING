@@ -1,4 +1,5 @@
 #include <advanced_motion_planner/advanced_motion_planner.h>
+#include <advanced_motion_planner/amp_common.h>
 
 int main(int argc, char** argv) {
 
