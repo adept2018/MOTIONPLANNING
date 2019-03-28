@@ -1,11 +1,29 @@
-obstacle_range: 10
-raytrace_range: 3.0
-#footprint: [[x0, y0], [x1, y1], ... [xn, yn]]
-#robot_radius: ir_of_robot
-inflation_radius: 0.55
+#---standard pioneer footprint---
+#---(in meters)---
+footprint: [ [-0.1,-0.125], [0.5,-0.125], [0.5,0.125], [-0.1,0.125] ]
 
-observation_sources: laser_scan_sensor #point_cloud_sensor
+transform_tolerance: 0.2
+map_type: costmap
 
-laser_scan_sensor: {sensor_frame: laser_frame, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+obstacle_layer:
+ enabled: true
+ obstacle_range: 3.0
+ raytrace_range: 3.5
+ inflation_radius: 0.2
+ track_unknown_space: false
+ combination_method: 1
+
+ observation_sources: laser_scan_sensor #point_cloud_sensor
+ laser_scan_sensor: {data_type: LaserScan, topic: scan, marking: true, clearing: true}
 
 # point_cloud_sensor: {sensor_frame: frame_name, data_type: PointCloud, topic: topic_name, marking: true, clearing: true}
+
+
+inflation_layer:
+  enabled:              true
+  cost_scaling_factor:  10.0  # exponential rate at which the obstacle cost drops off (default: 10)
+  inflation_radius:     0.5  # max. distance from an obstacle at which costs are incurred for planning paths.
+
+static_layer:
+  enabled:              true
+  map_topic:            "/map"
