@@ -1,0 +1,13 @@
+<!-- -*- mode: XML -*- -->
+<launch>
+  <include file="$(find navstack)/launch/move_base.launch">
+  </include>
+
+  <include file="$(find navstack)/launch/navstack.launch">
+  </include>
+
+  <node pkg="teb_planner" name="cmd_vel_to_ackermann_drive" type="cmd_vel_to_ackermann_drive.py" output="screen" >
+  </node>
+
+
+</launch>
