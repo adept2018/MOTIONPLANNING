@@ -1,29 +1,43 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-namespace Math {
-  struct vec2 {
+namespace math {
 
+  class vec2 {
+  public:
     vec2() = delete;
-    vec2(float x, float y): x(x), y(y) {};
-    vec2(float point): x(point), y(point) {};
-    vec2(Math::vec2 point): x(point.x), y(point.y) {};
+    vec2(float x, float y): mX(x), mY(y) {}
+    vec2(float point): mX(point), mY(point) {}
+    vec2(const vec2& point): mX(point.GetX()), mY(point.GetY()) {}
 
-    float x;
-    float y;
+    inline float GetX() const { return mX;}
+    inline float GetY() const { return mY;}
+
+    inline void SetX(const float x) { mX = x;}
+    inline void SetY(const float y) { mY = y;}
+
+  private:
+    float mX;
+    float mY;
   };
 
-  struct vec3 {
-
+  class vec3 {
+  public:
     vec3() = delete;
-    vec2(float x, float y, float z): x(x), y(y), z(z){};
-    vec2(float point): x(point), y(point), z(point){};
-    vec2(Math::vec3& point): x(point.x), y(point.y), z(point.z){};
+    vec3(float x, float y, float z): mX(x), mY(y), mZ(z) {}
+    vec3(float point): mX(point), mY(point), mZ(point) {}
+    vec3(const vec3& point): mX(point.GetX()), mY(point.GetY()), mZ(point.GetZ()){};
 
-    float x;
-    float y;
-    float z;
+    inline float GetX() const { return mX;}
+    inline float GetY() const { return mY;}
+    inline float GetZ() const { return mZ;}
+
+  private:
+    float mX;
+    float mY;
+    float mZ;
   };
+
 };
 
 #endif //UTIL_H

@@ -24,18 +24,7 @@ int main(int argc, char** argv) {
             return -1;
         }
 
-        float steeringAngle = 0.0f;
-
         if (!motionComputer.mCloud.empty()) {
-
-            // Computed angle
-            steeringAngle = motionComputer.mDirection.Omega;
-            if (steeringAngle > 0.34f) {
-                steeringAngle = 0.34f;
-            }
-            if (steeringAngle < -0.34f) {
-                steeringAngle = -0.34f;
-            }
 
             // Computed direction
             geometry_msgs::PoseStamped outputMsg;
@@ -45,8 +34,8 @@ int main(int argc, char** argv) {
             outputMsg.pose.position.y = 0;
             outputMsg.pose.position.z = 0;
 
-            outputMsg.pose.orientation.x = motionComputer.mDirection.X;
-            outputMsg.pose.orientation.y = motionComputer.mDirection.Y;
+            outputMsg.pose.orientation.x = motionComputer.getDirection().GetX();
+            outputMsg.pose.orientation.y = motionComputer.getDirection().GetY();
             outputMsg.pose.orientation.z = 0;
             outputMsg.pose.orientation.w = 0;
 
@@ -73,21 +62,13 @@ int main(int argc, char** argv) {
         direction.pose.orientation.w = 0;
         pubDirection.publish(direction);
 
-        // if (!motionComputer.invisibleCloud.empty()) {
-        //
-        //     // Non visible point cloud from lidar
-        //     sensor_msgs::PointCloud2 pclmsg;
-        //     pcl::toROSMsg(motionComputer.invisibleCloud, pclmsg);
-        //     pclmsg.header.frame_id = "bmp";
-        //     pubCloudInvisible.publish(pclmsg);
-        // }
-
         ackermann_msgs::AckermannDriveStamped ackMsg;
 
         // 0 or computed angle from motionComputer
-        ackMsg.drive.steering_angle = steeringAngle;
+        ackMsg.drive.steering_angle = motionComputer.getTurnAngle();
+
         // Use fixed speed (m/s)
-        ackMsg.drive.speed = 0.5f;
+        ackMsg.drive.speed = motionComputer.getVelocityAmplitude();
 
         pubAck.publish(ackMsg);
 

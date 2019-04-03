@@ -1,23 +1,20 @@
 #include <advanced_motion_planner/motion_computer.h>
 
-MotionComputer::MotionComputer(ros::NodeHandle &nh) {
-    mScanSub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
+MotionComputer::MotionComputer(ros::NodeHandle &nh) :
+    mDirection(0.0f),
+    mTurnAngle(0.0f),
+    mVelocityAmplitude(0.5f) {
+        mScanSub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
 }
 
 void MotionComputer::scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan) {
     mScanQueue.push(*scan);
 }
-Direction MotionComputer::getDirection(){
-  return mDirection;
-}
 
-void MotionComputer::setDirection(Direction& dir){
-  mDirection.X = dir.X;
-  mDirection.Y = dir.Y;
-  mDirection.Omega = dir.Omega;
-
-}
-
+// void MotionComputer::setDirection(vec2& dir){
+//   mDirection.SetX(dir.GetX());
+//   mDirection.SetY(dir.GetY());
+// }
 
 bool MotionComputer::computeMotion() {
 
@@ -29,7 +26,7 @@ bool MotionComputer::computeMotion() {
 
         mCloud.clear();
 
-        mCloud = mLaserScanToPointCloud.scanToCloud(scan, true);
+        mCloud = mLaserScanToPointCloud.scanToCloud(scan);
 
         uint32_t numberOfPoints = mCloud.size();
 
@@ -48,7 +45,7 @@ bool MotionComputer::computeMotion() {
             theta_w /= numberOfPoints;
 
             // Offset to turn away from obstacle
-            float offset = 0.52;
+            float offset = 0.52f;
 
             // Decide which way to turn away from obstacle
             if (theta_w < 0) {
@@ -58,9 +55,17 @@ bool MotionComputer::computeMotion() {
                 theta_w += -offset;
             }
 
-            mDirection.X = cos(theta_w);
-            mDirection.Y = sin(theta_w);
-            mDirection.Omega = theta_w;
+            mDirection.SetX(cos(theta_w));
+            mDirection.SetY(sin(theta_w));
+
+            // these checks moved in here from planner
+            if (theta_w > 0.34f) {
+                theta_w = 0.34f;
+            }
+            if (theta_w < -0.34f) {
+                theta_w = -0.34f;
+            }
+            mTurnAngle = theta_w;
         }
     }
     return true;
