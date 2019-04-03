@@ -23,6 +23,7 @@ add_executable(
   src/advanced_motion_planner.cpp
   src/motion_computer.cpp
   src/laserscan_to_pointcloud.cpp
+  src/amp_common.cpp
 )
 
 target_link_libraries(amp

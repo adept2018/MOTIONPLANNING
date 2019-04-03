@@ -10,11 +10,20 @@
 class LaserScanToPointCloud {
 private:
     bool filter(float range, float angle);
+    void resetStat();
+    void updateStat(const float r, const float a, const pcl::PointXYZ &point);
+    bool isStatInitialized();
 
 public:
-    LaserScanToPointCloud() {
-    }
+    struct {
+      // .x is min and .y is max
+      pcl::PointXY Rminmax;
+      pcl::PointXY Aminmax;
+      pcl::PointXY Xminmax;
+      pcl::PointXY Yminmax;
+    } stat;
 
+    LaserScanToPointCloud() {}
     pcl::PointCloud<pcl::PointXYZ> scanToCloud(const sensor_msgs::LaserScan &scan, bool insideFilter);
 };
 

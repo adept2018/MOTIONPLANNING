@@ -11,23 +11,27 @@
 class MotionComputer {
 private:
     LaserScanToPointCloud laserScanToPointCloud;
-
     sensor_msgs::LaserScan laser_scan;
     bool acquired_scan;
-
     std::queue<sensor_msgs::LaserScan> scan_queue;
-
     // Subscriber:
     ros::Subscriber scan_sub;
 
     void scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan);
 
 public:
-    MotionComputer(ros::NodeHandle &nh);
-    bool computeMotion();
     std::vector<float> direction;
     pcl::PointCloud<pcl::PointXYZ> visibleCloud;
     pcl::PointCloud<pcl::PointXYZ> invisibleCloud;
+
+    MotionComputer(ros::NodeHandle &nh);
+    bool computeMotion();
+    // implemented methods for determination of motion direction:
+    float getWeightedAverageDirection(const int NoOfPoints);
+    float getLargestRectangularDirection(const int NoOfPoints);
+    void buildRectangle(pcl::PointXY &A, pcl::PointXY &B, pcl::PointXY &C, pcl::PointXY &D,
+      const float a, const float r);
+    bool areAnyPointsInsideRectangle(const int n, const float r_i, const float a_i);
 };
 
 #endif //MOTION_COMPUTER_H

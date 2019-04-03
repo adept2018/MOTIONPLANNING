@@ -8,10 +8,10 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     MotionComputer motionComputer(nh);
 
-    pubPose = nh.advertise<geometry_msgs::PoseStamped>("bmp2/pose", 10);
-    pubCloudVisible = nh.advertise<sensor_msgs::PointCloud2>("bmp2/cloud/visible", 10);
-    pubCloudInvisible = nh.advertise<sensor_msgs::PointCloud2>("bmp2/cloud/invisible", 10);
-    pubDirection = nh.advertise<geometry_msgs::PoseStamped>("bmp2/direction", 10);
+    pubPose = nh.advertise<geometry_msgs::PoseStamped>("amp/pose", 10);
+    pubCloudVisible = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/visible", 10);
+    pubCloudInvisible = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/invisible", 10);
+    pubDirection = nh.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
     pubAck = nh.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
 
     ros::Rate rate(40.0);
@@ -91,6 +91,10 @@ int main(int argc, char** argv) {
         ackMsg.drive.speed = 0.5;
 
         pubAck.publish(ackMsg);
+
+        #ifdef DEBUG1
+          std::cout << "AMP steeringAngle:\t" << RAD2DEG(steeringAngle) << std::endl;
+        #endif
 
         rate.sleep();
     }
