@@ -1,11 +1,10 @@
-#include <advanced_motion_planner/laserscan_to_pointcloud.h>
+#include <advanced_motion_planner/LidarToCloudConverter.h>
 
-LaserScanToPointCloud::LaserScanToPointCloud(): mDistanceRange(0.3f, 2.0f), mAngleRange(-0.5f, 0.5f){
+LidarToCloudConverter::LidarToCloudConverter():
+    mDistanceRange(0.3f, 2.0f),
+    mAngleRange(-0.5f, 0.5f){}
 
-}
-
-
-bool LaserScanToPointCloud::isInRange(float range, float angle) {
+bool LidarToCloudConverter::isInRange(float range, float angle) {
 
   if (range > GetMaxDistance() ||
       range < GetMinDistance()) {
@@ -20,11 +19,11 @@ bool LaserScanToPointCloud::isInRange(float range, float angle) {
   return true;
 }
 
-pcl::PointCloud<pcl::PointXYZ> LaserScanToPointCloud::scanToCloud(const sensor_msgs::LaserScan &scan) {
+pcl::PointCloud<pcl::PointXYZ> LidarToCloudConverter::scanToCloud(const sensor_msgs::LaserScan &scan) {
 
-    constexpr float pi = atan(1.0f) * 4.0f;
+    constexpr float pi = atanf(1.0f) * 4.0f;
     pcl::PointCloud<pcl::PointXYZ> cloud;
-    cloud.reserve(1081); //check this thing out
+    cloud.reserve(1000); //check this thing out
 
     for (uint32_t i = 0; i < scan.ranges.size(); ++i) {
 

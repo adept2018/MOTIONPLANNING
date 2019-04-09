@@ -1,20 +1,16 @@
-#include <advanced_motion_planner/motion_computer.h>
+#include <advanced_motion_planner/MotionComputer.h>
 
 MotionComputer::MotionComputer(ros::NodeHandle &nh) :
-    mDirection(0.0f),
+    mLidarToCloudConverter(),
     mTurnAngle(0.0f),
     mVelocityAmplitude(0.5f) {
-        mScanSub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
+      mCloud.reserve(1081);
+      mScanSub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
 }
 
 void MotionComputer::scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan) {
     mScanQueue.push(*scan);
 }
-
-// void MotionComputer::setDirection(vec2& dir){
-//   mDirection.SetX(dir.GetX());
-//   mDirection.SetY(dir.GetY());
-// }
 
 bool MotionComputer::computeMotion() {
 
@@ -24,48 +20,56 @@ bool MotionComputer::computeMotion() {
         sensor_msgs::LaserScan scan = mScanQueue.front();
         mScanQueue.pop(); // does it free the memory though?
 
+        // we clear the previous scan
         mCloud.clear();
 
-        mCloud = mLaserScanToPointCloud.scanToCloud(scan);
+        // we get the new scan
+        mCloud = mLidarToCloudConverter.scanToCloud(scan);
 
-        uint32_t numberOfPoints = mCloud.size();
+        const uint32_t numberOfPoints = mCloud.size();
 
         if (numberOfPoints > 0) {
 
-            // Dived angle by number of points
+            // Divided angle by number of points
             float theta_w = 0.0f;
 
             // Sum all angles
             for (int i = 0; i < numberOfPoints; i++) {
                 const float x = mCloud.points[i].x;
                 const float y = mCloud.points[i].y;
-                theta_w += atan(y / x);
+                theta_w += atanf(y / x);
             }
 
+            // average theta
             theta_w /= numberOfPoints;
 
             // Offset to turn away from obstacle
             float offset = 0.52f;
 
             // Decide which way to turn away from obstacle
-            if (theta_w < 0) {
+            if (theta_w < 0.0f) {
                 theta_w += offset;
             }
             else {
                 theta_w += -offset;
             }
 
-            mDirection.SetX(cos(theta_w));
-            mDirection.SetY(sin(theta_w));
-
             // these checks moved in here from planner
+            // because this function is responsible for points
+            // values
             if (theta_w > 0.34f) {
                 theta_w = 0.34f;
             }
             if (theta_w < -0.34f) {
                 theta_w = -0.34f;
             }
+
+            // mDirection.SetX(cosf(theta_w));
+            // mDirection.SetY(sinf(theta_w));
             mTurnAngle = theta_w;
+        }
+        else{
+            //don't move!
         }
     }
     return true;

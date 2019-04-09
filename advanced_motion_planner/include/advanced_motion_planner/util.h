@@ -1,24 +1,26 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 namespace math {
 
+// the purpose of the vec2 is to have units
+// thus private members
   class vec2 {
   public:
-    vec2() = delete;
-    vec2(float x, float y): mX(x), mY(y) {}
-    vec2(float point): mX(point), mY(point) {}
-    vec2(const vec2& point): mX(point.GetX()), mY(point.GetY()) {}
+    constexpr vec2() = delete;
+    constexpr vec2(const vec2&) = default;
+    constexpr vec2(vec2&&) = default;
 
-    inline float GetX() const { return mX;}
-    inline float GetY() const { return mY;}
+    constexpr explicit vec2(float point): x(point), y(point) {}
+    constexpr explicit vec2(float ox, float oy): x(ox), y(oy) {}
 
-    inline void SetX(const float x) { mX = x;}
-    inline void SetY(const float y) { mY = y;}
+    // constexpr vec2(const vec2& point): mX(point.GetX()), mY(point.GetY()) {}
 
-  private:
-    float mX;
-    float mY;
+    // constexpr vec2& operator=(const vec2&) = default;
+    // constexpr vec2& operator=(vec2&&) = default;
+
+  public:
+    float x;
+    float y;
   };
 
   class vec3 {
@@ -39,5 +41,3 @@ namespace math {
   };
 
 };
-
-#endif //UTIL_H

@@ -22,8 +22,8 @@ include_directories(
 add_executable(
   amp
   src/advanced_motion_planner.cpp
-  src/motion_computer.cpp
-  src/laserscan_to_pointcloud.cpp
+  src/MotionComputer.cpp
+  src/LidarToCloudConverter.cpp
 )
 
 target_link_libraries(amp
