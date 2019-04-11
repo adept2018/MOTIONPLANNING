@@ -6,9 +6,15 @@
   * used in the AMP module
   */
 
+// print debug info on with different detail level 1, 2 ...
 //#define DEBUG1
 //#define DEBUG2
+// publish and/or print extended data/clouds/...
+#define FUNCTIONAL_DEBUG_INFO
 
+#ifdef FUNCTIONAL_DEBUG_INFO
+  #define maxSidePointsInPathCloud 10U
+#endif
 
 #ifndef PI
   #define   PI                  3.141592654f
@@ -20,7 +26,7 @@
   #define RAD2DEG(x)          (x * 180.0f / PI)
 #endif
 
-#define   LIDAR_ANG_OFFSET    (PI * 0.5f)
+#define   LIDAR_ANG_OFFSET    DEG2RAD(90.0f)
 
 // Offset to turn away from obstacle (old BMP)
 #define   turn_offset         DEG2RAD(28.6f)
@@ -47,6 +53,8 @@
 #define   pathsDistPitch      0.3f   // in m, increments in r for the rectangle path finding
 #define   AREA_TOLERANCE      1.0e-4f
 
+#define DRIVE_SPEED_DEFAULT   0.5f  // m/s
+
 
 // This is calls with service static functions:
 class AMP_utils {
@@ -68,6 +76,11 @@ class AMP_utils {
       const pcl::PointXY &C, const pcl::PointXY &D);
     static bool isInsideRectangle(const pcl::PointXY &p, const pcl::PointXY &A,
       const pcl::PointXY &B, const pcl::PointXY &C, const pcl::PointXY &D);
+
+    // additional functions
+    #ifdef FUNCTIONAL_DEBUG_INFO
+      static pcl::PointXYZ getPointInBetween(const pcl::PointXY &A, const pcl::PointXY &B, const uint i, const uint max);
+    #endif
 };
 
 #endif //AMP_COMMON_H

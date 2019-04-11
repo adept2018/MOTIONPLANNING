@@ -13,6 +13,9 @@ int main(int argc, char** argv) {
     pubCloudInvisible = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/invisible", 10);
     pubDirection = nh.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
     pubAck = nh.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
+    #ifdef FUNCTIONAL_DEBUG_INFO
+      pubPathCloud = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/pathCloud", 10);
+    #endif
 
     ros::Rate rate(40.0);
     std::cout << "Running the advanced motion planner." << std::endl;
@@ -25,7 +28,7 @@ int main(int argc, char** argv) {
             return -1;
         }
 
-        float steeringAngle = 0;
+        float steeringAngle = 0.0f;
 
         if (!motionComputer.visibleCloud.empty()) {
 
@@ -58,6 +61,15 @@ int main(int argc, char** argv) {
             pcl::toROSMsg(motionComputer.visibleCloud, pclmsg);
             pclmsg.header.frame_id = "bmp";
             pubCloudVisible.publish(pclmsg);
+
+            #ifdef FUNCTIONAL_DEBUG_INFO
+              // Visualize calculated rectangular path for the car
+              // note that it can differ from the actual direction adjusted by SteeringAngleLimit
+              sensor_msgs::PointCloud2 ppclmsg;
+              pcl::toROSMsg(motionComputer.pathCloud, ppclmsg);
+              ppclmsg.header.frame_id = "bmp";
+              pubPathCloud.publish(ppclmsg);
+            #endif
         }
 
         // Vector showing forward direction
@@ -88,11 +100,11 @@ int main(int argc, char** argv) {
         // 0 or computed angle from motionComputer
         ackMsg.drive.steering_angle = steeringAngle;
         // Use fixed speed (m/s)
-        ackMsg.drive.speed = 0.5;
+        ackMsg.drive.speed = DRIVE_SPEED_DEFAULT;
 
         pubAck.publish(ackMsg);
 
-        #ifdef DEBUG1
+        #ifdef DEBUG2
           std::cout << "AMP steeringAngle:\t" << RAD2DEG(steeringAngle) << std::endl;
         #endif
 

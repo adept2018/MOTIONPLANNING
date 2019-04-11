@@ -9,7 +9,7 @@ void AMP_utils::polar2xy(float &x, float &y, const float r, const float a) {
 }
 
 void AMP_utils::xy2polar(float &r, float &a, const float x, const float y) {
-  r = sqrt(x * x + y * y);
+  r = sqrtf(x * x + y * y);
   a = atan2f(y, x);
 }
 
@@ -70,3 +70,22 @@ bool AMP_utils::isInsideRectangle(const pcl::PointXY &P, const pcl::PointXY &A,
   // Check the sum
   return ( fabs(area_ABCD - area_sum) < AREA_TOLERANCE );
 }
+
+// additional functions
+#ifdef FUNCTIONAL_DEBUG_INFO
+
+  pcl::PointXYZ AMP_utils::getPointInBetween(const pcl::PointXY &A, const pcl::PointXY &B, const uint i, const uint max) {
+    pcl::PointXYZ res;
+    float a = (B.y - A.y) / (B.x - A.x);
+    float b = A.y - a * A.x;
+    float ii = (i>=max) ? 1.0f : (float(i) / float(max));
+
+    res.x = fminf(A.x, B.x) + fabsf(B.x - A.x) * ii;
+    //res.y = fminf(A.y, B.y) + fabsf(B.y - A.y) * ii;
+    res.y = a * res.x + b;
+    res.z = 0.0f;
+
+    return res;
+  }
+
+#endif

@@ -18,6 +18,9 @@ bool MotionComputer::computeMotion() {
         direction.clear();
         visibleCloud.clear();
         invisibleCloud.clear();
+        #ifdef FUNCTIONAL_DEBUG_INFO
+          pathCloud.clear();
+        #endif
 
         visibleCloud = laserScanToPointCloud.scanToCloud(scan, true);
         invisibleCloud = laserScanToPointCloud.scanToCloud(scan, false);
@@ -26,10 +29,10 @@ bool MotionComputer::computeMotion() {
 
         if (numberOfPoints > 0) {
 
-            // average weighted angle based decision:
+            // METHOD-1 average weighted angle based decision:
             //float theta_w = getWeightedAverageDirection(numberOfPoints);
 
-            // analyze what is the lagest rectangular path available at the front
+            // METHOD-2 analyze what is the lagest rectangular path available at the front
             float theta_w = getLargestRectangularDirection(numberOfPoints);
 
             // some debug output:
@@ -54,8 +57,6 @@ float MotionComputer::getWeightedAverageDirection(const int n) {
     for (int i = 0; i < n; i++) {
         float x = visibleCloud.points[i].x;
         float y = visibleCloud.points[i].y;
-        /*tmp = atan2f(y, x);
-        r = sqrt(x * x + y * y);*/
         AMP_utils::xy2polar(r, tmp, x, y);
         sum_theta += tmp * r;
         sum_r += r;
@@ -81,13 +82,13 @@ float MotionComputer::getWeightedAverageDirection(const int n) {
 
 float MotionComputer::getLargestRectangularDirection(const int n) {
   float a_best = 0.0f, r_best = 0.0f, a_i, r_i;
-  unsigned int counter = 0;
+  uint counter = 0;
 
   if(n > 0) {
     // there are data to check
 
     // loop through all paths (angles)
-    for(a_i = -angle_range + pathsAngPitchHalf; a_i <= angle_range - pathsAngPitchHalf; a_i += pathsAngPitch) {
+    for(a_i = (-angle_range + pathsAngPitchHalf); a_i <= (angle_range - pathsAngPitchHalf); a_i += pathsAngPitch) {
       // loop: increment distance (far end)
       for(r_i = (min_range + pathsDistPitch); r_i < max_range; r_i += pathsDistPitch) {
 
@@ -103,20 +104,27 @@ float MotionComputer::getLargestRectangularDirection(const int n) {
         if(!areAnyPointsInsideRectangle(n, r_i, a_i)) {
           // if no points belong to then memorize that direction and max dist
           // we choose direction by the longest available path
-          if(r_i > r_best) {
+          if(r_i >= r_best) {
             r_best = r_i;
             a_best = a_i;
+
             #ifdef DEBUG1
               std::cout << counter << "th new best r&a:\t" << r_best << "\t" << RAD2DEG(a_best) << std::endl;
             #endif
           }
         } else {
-          // there are points inside this path, continue to another direction
+          // there are points inside this path,
+          // skip r_i+1 increment continue to another direction a_i+1
           break; // from r_i loop
         }
 
       } // loop on distance
     } // loop on angle (direction)
+
+    #ifdef FUNCTIONAL_DEBUG_INFO
+      // note that actual steering angle can be overwritten in advanced_motion_planner.cpp
+      buildPathCloud(r_best, a_best);
+    #endif
   }
 
   // return the best direction
@@ -128,7 +136,7 @@ bool MotionComputer::areAnyPointsInsideRectangle(const int n, const float r_i, c
   pcl::PointXY p, A, B, C, D;
 
   // construct 4 rectangle corners
-  buildRectangle(A, B, C, D, a_i, r_i);
+  buildRectangle(A, B, C, D, r_i, a_i);
 
   // loop through all visible points
   for (int i = 0; i < n; i++) {
@@ -170,20 +178,19 @@ bool MotionComputer::areAnyPointsInsideRectangle(const int n, const float r_i, c
 //  +-------------->
 //                X
 //
-void MotionComputer::buildRectangle(pcl::PointXY &A, pcl::PointXY &B, pcl::PointXY &C, pcl::PointXY &D,
-  const float a, const float r) {
+void MotionComputer::buildRectangle(pcl::PointXY &A, pcl::PointXY &B, pcl::PointXY &C, pcl::PointXY &D, const float r, const float a) {
     register float Ar, Aa, Br, Ba, Cr, Ca, Dr, Da, tmp_cw2, tmp_far_a;
 
-    tmp_cw2 = carWidth_m * carWidth_m * 0.25;
+    tmp_cw2 = carWidth_m * carWidth_m * 0.25f;
 
     // building polar coordinates
-    Ar = sqrt( tmp_cw2 + r * r);
+    Ar = sqrtf( tmp_cw2 + r * r);
     tmp_far_a = asinf(carWidth_m * 0.5f / Ar);
     Aa = a - tmp_far_a;
     Ba = a + tmp_far_a;
     Br = Ar;
     Ca = a + RminHalfWidthAngle;
-    Cr = sqrt(tmp_cw2 + min_range * min_range);
+    Cr = sqrtf(tmp_cw2 + min_range * min_range);
     Da = a - RminHalfWidthAngle;
     Dr = Cr;
 
@@ -201,3 +208,29 @@ void MotionComputer::buildRectangle(pcl::PointXY &A, pcl::PointXY &B, pcl::Point
       std::cout << "D\t" << D.x << "\t"<< D.y << "\t" << Dr << "\t" << RAD2DEG(Da) << std::endl;
     #endif
 }
+
+#ifdef FUNCTIONAL_DEBUG_INFO
+// this is for vizualisation of the planned path in rviz, not useful or used for car
+void MotionComputer::buildPathCloud(const float r, const float a) {
+  pcl::PointXY A, B, C, D;
+
+  // buiding the corners (although data could be reused from the last call, too lazy to implement...)
+  buildRectangle(A, B, C, D, r, a);
+
+  // the rectangle points are send here to the cloud for publishing (visualizaion for rviz only)
+  // points along each side  are produced from 4 points A..D
+  for(uint i = 0; i < maxSidePointsInPathCloud; ++i) {
+     pathCloud.push_back(AMP_utils::getPointInBetween(A, B, i, maxSidePointsInPathCloud));
+     pathCloud.push_back(AMP_utils::getPointInBetween(B, C, i, maxSidePointsInPathCloud));
+     pathCloud.push_back(AMP_utils::getPointInBetween(C, D, i, maxSidePointsInPathCloud));
+     pathCloud.push_back(AMP_utils::getPointInBetween(D, A, i, maxSidePointsInPathCloud));
+  }
+
+  #ifdef DEBUG2
+    pcl::PointXY p = AMP_utils::polar2PointXY(r, a);
+    std::cout << "{raxy},ABCD_xy\t" << r << "\t"<< RAD2DEG(a) << "\t" << p.x << "\t"<< p.y << "\t";
+    std::cout << A.x << "\t"<< A.y << "\t" << B.x << "\t" << B.y << "\t";
+    std::cout << C.x << "\t"<< C.y << "\t" << D.x << "\t" << D.y << std::endl;
+  #endif
+}
+#endif

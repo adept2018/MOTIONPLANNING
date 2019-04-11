@@ -22,8 +22,6 @@ pcl::PointCloud<pcl::PointXYZ> LaserScanToPointCloud::scanToCloud(const sensor_m
 
         if (filter(r, theta) == insideFilter) {
           // visible cloud
-          /*point.x = r * cosf(theta);
-          point.y = r * sin(theta);*/
           AMP_utils::polar2PointXYZ(point, r, theta);
           point.z = 0.0f;
 
