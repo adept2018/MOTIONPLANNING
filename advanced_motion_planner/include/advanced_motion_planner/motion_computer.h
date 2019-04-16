@@ -2,30 +2,33 @@
 #define MOTION_COMPUTER_H
 
 #include <ros/ros.h>
+#include <sensor_msgs/LaserScan.h>
 
 #include <cmath>
 #include <queue>
-#include <sensor_msgs/LaserScan.h>
+
 #include <advanced_motion_planner/laserscan_to_pointcloud.h>
+#include <advanced_motion_planner/package_structs.h>
+#include <advanced_motion_planner/wall_follower.h>
 
 class MotionComputer {
 private:
+    void scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan);
+
     LaserScanToPointCloud laserScanToPointCloud;
 
-    sensor_msgs::LaserScan laser_scan;
-    bool acquired_scan;
-
-    std::queue<sensor_msgs::LaserScan> scan_queue;
+    bool m_acquired_scan;
+    sensor_msgs::LaserScan m_laser_scan;
+    std::queue<sensor_msgs::LaserScan> m_scan_queue;
 
     // Subscriber:
-    ros::Subscriber scan_sub;
-
-    void scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan);
+    ros::Subscriber m_subscriber;
 
 public:
     MotionComputer(ros::NodeHandle &nh);
     bool computeMotion();
-    std::vector<float> direction;
+
+    AckermannDirection direction;
     pcl::PointCloud<pcl::PointXYZ> cloud;
 };
 

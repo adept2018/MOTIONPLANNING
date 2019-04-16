@@ -7,12 +7,12 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     MotionComputer motionComputer(nh);
 
-    pubPose = nh.advertise<geometry_msgs::PoseStamped>("amp/pose", 10);
-    pubCloud = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/visible", 10);
-    pubDirection = nh.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
-    pubAck = nh.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
+    m_pubPose = nh.advertise<geometry_msgs::PoseStamped>("amp/pose", 10);
+    m_pubCloud = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/visible", 10);
+    m_pubDirection = nh.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
+    m_pubAck = nh.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
 
-    ros::Rate rate(40.0);
+    ros::Rate rate(40.0f);
     std::cout << "Running the advanced motion planner." << std::endl;
 
     while (nh.ok()) {
@@ -23,63 +23,57 @@ int main(int argc, char** argv) {
             return -1;
         }
 
-        float steeringAngle = 0;
+        float steeringAngle = 0.0f;
 
-        if (!motionComputer.visibleCloud.empty()) {
+        if (!motionComputer.cloud.empty()) {
 
             // Computed angle
-            steeringAngle = motionComputer.direction[2];
-            if (steeringAngle > 0.34) {
-                steeringAngle = 0.34;
+            steeringAngle = motionComputer.direction.theta;
+            if (steeringAngle > 0.34f) {
+                steeringAngle = 0.34f;
             }
-            if (steeringAngle < -0.34) {
-                steeringAngle = -0.34;
+            if (steeringAngle < -0.34f) {
+                steeringAngle = -0.34f;
             }
 
             // Computed direction
             geometry_msgs::PoseStamped outputMsg;
             outputMsg.header.frame_id = "amp";
 
-            outputMsg.pose.position.x = 0;
-            outputMsg.pose.position.y = 0;
-            outputMsg.pose.position.z = 0;
+            outputMsg.pose.position.x = 0.0f;
+            outputMsg.pose.position.y = 0.0f;
+            outputMsg.pose.position.z = 0.0f;
 
-            outputMsg.pose.orientation.x = motionComputer.direction[0];
-            outputMsg.pose.orientation.y = motionComputer.direction[1];
-            outputMsg.pose.orientation.z = 0;
-            outputMsg.pose.orientation.w = 0;
+            outputMsg.pose.orientation.x = motionComputer.direction.x;
+            outputMsg.pose.orientation.y = motionComputer.direction.y;
+            outputMsg.pose.orientation.z = 0.0f;
+            outputMsg.pose.orientation.w = 0.0f;
 
-            pubPose.publish(outputMsg);
-
-            // Visible point cloud from lidar
-            sensor_msgs::PointCloud2 pclmsg;
-            pcl::toROSMsg(motionComputer.cloud, pclmsg);
-            pclmsg.header.frame_id = "amp";
-            pubCloudVisible.publish(pclmsg);
+            m_pubPose.publish(outputMsg);
         }
 
         // Vector showing forward direction
         geometry_msgs::PoseStamped direction;
         direction.header.frame_id = "amp";
 
-        direction.pose.position.x = 0;
-        direction.pose.position.y = 0;
-        direction.pose.position.z = 0;
+        direction.pose.position.x = 0.0f;
+        direction.pose.position.y = 0.0f;
+        direction.pose.position.z = 0.0f;
 
-        direction.pose.orientation.x = 1;
-        direction.pose.orientation.y = 0;
-        direction.pose.orientation.z = 0;
-        direction.pose.orientation.w = 0;
-        pubDirection.publish(direction);
+        direction.pose.orientation.x = 1.0f;
+        direction.pose.orientation.y = 0.0f;
+        direction.pose.orientation.z = 0.0f;
+        direction.pose.orientation.w = 0.0f;
+        m_pubDirection.publish(direction);
 
         ackermann_msgs::AckermannDriveStamped ackMsg;
 
         // 0 or computed angle from motionComputer
         ackMsg.drive.steering_angle = steeringAngle;
         // Use fixed speed (m/s)
-        ackMsg.drive.speed = 0.5;
+        ackMsg.drive.speed = 0.5f;
 
-        pubAck.publish(ackMsg);
+        m_pubAck.publish(ackMsg);
 
         rate.sleep();
     }
