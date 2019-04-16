@@ -9,44 +9,36 @@ int main(int argc, char** argv) {
 
     pubPose = nh.advertise<geometry_msgs::PoseStamped>("bmp/pose", 10);
     pubCloudVisible = nh.advertise<sensor_msgs::PointCloud2>("bmp/cloud/visible", 10);
-    pubCloudInvisible = nh.advertise<sensor_msgs::PointCloud2>("bmp/cloud/invisible", 10);
     pubDirection = nh.advertise<geometry_msgs::PoseStamped>("bmp/direction", 10);
     pubAck = nh.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
 
-    ros::Rate rate(40.0);
-    std::cout << "Running the advanced motion planner." << std::endl;
+    // frequency of ros i.e. the while loop
+    // TODO: connect it with lidar?
+    ros::Rate rate(40.0f);
+    std::cout << "Running the advanced motion planner.\n";
 
     while (nh.ok()) {
+        //TODO: investigate this
         ros::spinOnce();
 
         if (!motionComputer.computeMotion()) {
-            std::cout << "ERROR: Cannot compute motion." << std::endl;
+            std::cout << "ERROR: Cannot compute motion.\n";
             return -1;
         }
 
-        float steeringAngle = 0;
-
-        if (!motionComputer.visibleCloud.empty()) {
-
-            // Computed angle
-            steeringAngle = motionComputer.direction[2];
-            if (steeringAngle > 0.34) {
-                steeringAngle = 0.34;
-            }
-            if (steeringAngle < -0.34) {
-                steeringAngle = -0.34;
-            }
+        if (!motionComputer.getCloud().empty()) {
 
             // Computed direction
             geometry_msgs::PoseStamped outputMsg;
-            outputMsg.header.frame_id = "bmp";
+            outputMsg.header.frame_id = "amp";
 
             outputMsg.pose.position.x = 0;
             outputMsg.pose.position.y = 0;
             outputMsg.pose.position.z = 0;
 
-            outputMsg.pose.orientation.x = motionComputer.direction[0];
-            outputMsg.pose.orientation.y = motionComputer.direction[1];
+            const math::vec2 direction(motionComputer.getDirection());
+            outputMsg.pose.orientation.x = direction.x;
+            outputMsg.pose.orientation.y = direction.y;
             outputMsg.pose.orientation.z = 0;
             outputMsg.pose.orientation.w = 0;
 
@@ -54,14 +46,14 @@ int main(int argc, char** argv) {
 
             // Visible point cloud from lidar
             sensor_msgs::PointCloud2 pclmsg;
-            pcl::toROSMsg(motionComputer.visibleCloud, pclmsg);
-            pclmsg.header.frame_id = "bmp";
+            pcl::toROSMsg(motionComputer.getCloud(), pclmsg);
+            pclmsg.header.frame_id = "amp";
             pubCloudVisible.publish(pclmsg);
         }
 
-        // Vector showing forward direction
+        // normal from car to forward direction
         geometry_msgs::PoseStamped direction;
-        direction.header.frame_id = "bmp";
+        direction.header.frame_id = "amp";
 
         direction.pose.position.x = 0;
         direction.pose.position.y = 0;
@@ -73,24 +65,17 @@ int main(int argc, char** argv) {
         direction.pose.orientation.w = 0;
         pubDirection.publish(direction);
 
-        if (!motionComputer.invisibleCloud.empty()) {
-
-            // Non visible point cloud from lidar
-            sensor_msgs::PointCloud2 pclmsg;
-            pcl::toROSMsg(motionComputer.invisibleCloud, pclmsg);
-            pclmsg.header.frame_id = "bmp";
-            pubCloudInvisible.publish(pclmsg);
-        }
-
+        //message to the controller
         ackermann_msgs::AckermannDriveStamped ackMsg;
-
         // 0 or computed angle from motionComputer
-        ackMsg.drive.steering_angle = steeringAngle;
+        ackMsg.drive.steering_angle = motionComputer.getTurnAngle();
         // Use fixed speed (m/s)
-        ackMsg.drive.speed = 0.5;
+        // TODO: try negative velocity
+        ackMsg.drive.speed = motionComputer.getVelocityAmplitude();
 
         pubAck.publish(ackMsg);
 
+        //TODO: investigate this
         rate.sleep();
     }
 }

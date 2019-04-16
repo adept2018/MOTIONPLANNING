@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(advanced_motion_planner)
+set (CMAKE_CXX_STANDARD 11)
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
@@ -21,8 +22,8 @@ include_directories(
 add_executable(
   amp
   src/advanced_motion_planner.cpp
-  src/motion_computer.cpp
-  src/laserscan_to_pointcloud.cpp
+  src/MotionComputer.cpp
+  src/LidarToCloudConverter.cpp
 )
 
 target_link_libraries(amp
