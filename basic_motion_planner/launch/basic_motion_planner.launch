@@ -18,7 +18,7 @@
   </node>
 
   <include file="$(find zed_wrapper)/launch/zed.launch">
-      <arg name="camera_model" value="0" /> <!-- 0=ZED, 1=ZEDM-->
+      <arg name="camera_model" value="0" />
   </include>
 
 </launch>
