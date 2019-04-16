@@ -26,47 +26,49 @@ bool MotionComputer::computeMotion() {
         // we get the new scan
         mCloud = mLidarToCloudConverter.scanToCloud(scan);
 
+        //here we start our implementation :)
+
         const uint32_t numberOfPoints = mCloud.size();
 
-        if (numberOfPoints > 0) {
+        if (!mCloud.empty()) {
 
             // Divided angle by number of points
-            float theta_w = 0.0f;
+            float theta = 0.0f;
 
             // Sum all angles
             for (int i = 0; i < numberOfPoints; i++) {
                 const float x = mCloud.points[i].x;
                 const float y = mCloud.points[i].y;
-                theta_w += atanf(y / x);
+                theta += atanf(y / x);
             }
 
             // average theta
-            theta_w /= numberOfPoints;
+            theta /= numberOfPoints;
 
             // Offset to turn away from obstacle
             float offset = 0.52f;
 
             // Decide which way to turn away from obstacle
-            if (theta_w < 0.0f) {
-                theta_w += offset;
+            if (theta < 0.0f) {
+                theta += offset;
             }
             else {
-                theta_w += -offset;
+                theta += -offset;
             }
 
             // these checks moved in here from planner
             // because this function is responsible for points
             // values
-            if (theta_w > 0.34f) {
-                theta_w = 0.34f;
+            if (theta > 0.34f) {
+                theta = 0.34f;
             }
-            if (theta_w < -0.34f) {
-                theta_w = -0.34f;
+            if (theta < -0.34f) {
+                theta = -0.34f;
             }
 
-            // mDirection.SetX(cosf(theta_w));
-            // mDirection.SetY(sinf(theta_w));
-            mTurnAngle = theta_w;
+            // mDirection.SetX(cosf(theta));
+            // mDirection.SetY(sinf(theta));
+            mTurnAngle = theta;
         }
         else{
             //don't move!
