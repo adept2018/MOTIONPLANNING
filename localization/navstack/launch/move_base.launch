@@ -29,6 +29,6 @@
     <!-- <include file="$(find amcl)/examples/amcl_omni.launch" /> -->
 
     <!--  **************** Visualisation ****************  -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find navstack)/rviz/navstack.rviz"/>
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find navstack)/rviz/navstack.rviz"/>-->
 
 </launch>
