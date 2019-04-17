@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 
             // Computed direction
             geometry_msgs::PoseStamped outputMsg;
-            outputMsg.header.frame_id = "bmp";
+            outputMsg.header.frame_id = "amp";
 
             outputMsg.pose.position.x = 0;
             outputMsg.pose.position.y = 0;
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
             // Visible point cloud from lidar
             sensor_msgs::PointCloud2 pclmsg;
             pcl::toROSMsg(motionComputer.visibleCloud, pclmsg);
-            pclmsg.header.frame_id = "bmp";
+            pclmsg.header.frame_id = "amp";
             pubCloudVisible.publish(pclmsg);
 
             #ifdef FUNCTIONAL_DEBUG_INFO
@@ -67,14 +67,14 @@ int main(int argc, char** argv) {
               // note that it can differ from the actual direction adjusted by SteeringAngleLimit
               sensor_msgs::PointCloud2 ppclmsg;
               pcl::toROSMsg(motionComputer.pathCloud, ppclmsg);
-              ppclmsg.header.frame_id = "bmp";
+              ppclmsg.header.frame_id = "amp";
               pubPathCloud.publish(ppclmsg);
             #endif
         }
 
         // Vector showing forward direction
         geometry_msgs::PoseStamped direction;
-        direction.header.frame_id = "bmp";
+        direction.header.frame_id = "amp";
 
         direction.pose.position.x = 0;
         direction.pose.position.y = 0;
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
             // Non visible point cloud from lidar
             sensor_msgs::PointCloud2 pclmsg;
             pcl::toROSMsg(motionComputer.invisibleCloud, pclmsg);
-            pclmsg.header.frame_id = "bmp";
+            pclmsg.header.frame_id = "amp";
             pubCloudInvisible.publish(pclmsg);
         }
 

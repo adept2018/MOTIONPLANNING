@@ -10,7 +10,7 @@
 //#define DEBUG1
 //#define DEBUG2
 // publish and/or print extended data/clouds/...
-#define FUNCTIONAL_DEBUG_INFO
+//#define FUNCTIONAL_DEBUG_INFO
 
 #ifdef FUNCTIONAL_DEBUG_INFO
   #define maxSidePointsInPathCloud 10U
@@ -37,9 +37,9 @@
 
 // LIDAR data filtering (for visibleCloud) withing following intervals:
 #define   max_range           2.0f
-#define   min_range           0.3f
-#define   angle_range         DEG2RAD(28.6f)  // default in BMP
-//#define   angle_range         DEG2RAD(45.0f)
+#define   min_range           0.10f
+//#define   angle_range         DEG2RAD(28.6f)  // default in BMP
+#define   angle_range         DEG2RAD(45.0f)
 
 // safe width & corresponding half angle width where car can go through within max_range
 #define   carWidth_m          0.3f
@@ -53,7 +53,7 @@
 #define   pathsDistPitch      0.3f   // in m, increments in r for the rectangle path finding
 #define   AREA_TOLERANCE      1.0e-4f
 
-#define DRIVE_SPEED_DEFAULT   0.5f  // m/s
+#define DRIVE_SPEED_DEFAULT   0.35f  // m/s
 
 
 // This is calls with service static functions:
