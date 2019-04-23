@@ -1,6 +1,8 @@
 <!-- -*- mode: XML -*- -->
 <launch>
 
+  <rosparam command="load" file="$(find advanced_motion_planner)/yaml/parameters.yaml"/>
+
   <arg name="racecar_version" default="racecar-v2" />
   <arg name="run_camera" default="false"/>
 

@@ -16,6 +16,8 @@ private:
     void scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan);
 
     LaserScanToPointCloud laserScanToPointCloud;
+    Parameters parameters;
+    WallFollower wallFollower;
 
     bool m_acquired_scan;
     sensor_msgs::LaserScan m_laser_scan;
@@ -28,7 +30,8 @@ public:
     MotionComputer(ros::NodeHandle &nh);
     bool computeMotion();
 
-    AckermannDirection direction;
+    AckermannMsg ackMsg;
+    Direction direction;
     pcl::PointCloud<pcl::PointXYZ> cloud;
 };
 

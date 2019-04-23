@@ -4,18 +4,18 @@ int main(int argc, char** argv) {
 
     // Initialize ROS:
     ros::init(argc, argv, "advanced_motion_planner");
-    ros::NodeHandle nh;
-    MotionComputer motionComputer(nh);
+    ros::NodeHandle nodeHandle;
+    MotionComputer motionComputer(nodeHandle);
 
-    m_pubPose = nh.advertise<geometry_msgs::PoseStamped>("amp/pose", 10);
-    m_pubCloud = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/visible", 10);
-    m_pubDirection = nh.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
-    m_pubAck = nh.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
+    m_pubPose = nodeHandle.advertise<geometry_msgs::PoseStamped>("amp/pose", 10);
+    m_pubCloud = nodeHandle.advertise<sensor_msgs::PointCloud2>("amp/cloud/visible", 10);
+    m_pubDirection = nodeHandle.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
+    m_pubAck = nodeHandle.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
 
     ros::Rate rate(40.0f);
     std::cout << "Running the advanced motion planner." << std::endl;
 
-    while (nh.ok()) {
+    while (nodeHandle.ok()) {
         ros::spinOnce();
 
         if (!motionComputer.computeMotion()) {

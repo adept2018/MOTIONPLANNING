@@ -1,5 +1,7 @@
 <launch>
 
+    <rosparam command="load" file="$(find advanced_motion_planner)/yaml/parameters.yaml"/>
+
     <node name="amp" pkg="advanced_motion_planner" type="amp" output="screen">
     </node>
 

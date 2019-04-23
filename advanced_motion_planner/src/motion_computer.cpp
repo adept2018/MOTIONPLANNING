@@ -17,8 +17,14 @@ bool MotionComputer::computeMotion() {
         cloud.clear();
         cloud = laserScanToPointCloud.scanToCloud(scan);
 
-        // TODO:
-        // followTheWall();
+        if (!wallFollower.followTheWall) {
+            std::cerr << "Failed to follow the wall - driving forward with reduced speed" << std::endl;
+            ackMsg.steering_angle = 0.0f;
+            ackMsg.speed = parameters.min_speed;
+            direction.x = 0.0f;
+            direction.y = 0.0f;
+            return true;
+        }
 
         float theta = 0;
 

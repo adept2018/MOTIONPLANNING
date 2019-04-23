@@ -1,0 +1,7 @@
+/advanced_motion_planner/lidar_offset: rad(pi/2.0)
+
+/advanced_motion_planner/min_speed: 0.30
+/advanced_motion_planner/max_speed: 1.00
+/advanced_motion_planner/speed_incr: 0.01
+
+#/advanced_motion_planner/

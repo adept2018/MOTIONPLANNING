@@ -7,13 +7,17 @@
 #include <pcl/point_types.h>
 
 #include <advanced_motion_planner/package_structs.h>
+#include <advanced_motion_planner/parameters.h>
 
 class WallFollower {
 private:
 
 public:
+    WallFollower() {}
     bool followTheWall(pcl::PointCloud<pcl::PointXYZ> cloud);
 
+    AckermannMessage ackMsg;
+    Direction direction;
 };
 
 #endif //WALL_FOLLOWER_H

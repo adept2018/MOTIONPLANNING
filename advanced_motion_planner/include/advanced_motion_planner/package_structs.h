@@ -1,13 +1,20 @@
 #ifndef PACKAGE_STRUCTS_H
 #define PACKAGE_STRUCTS_H
 
-class AckermannDirection {
+class AckermannMessage {
+private:
+
+public:
+    float steering_angle;
+    float speed;
+};
+
+class Direction {
 private:
 
 public:
     float x;
     float y;
-    float theta;
 };
 
 #endif //PACKAGE_STRUCTS_H
