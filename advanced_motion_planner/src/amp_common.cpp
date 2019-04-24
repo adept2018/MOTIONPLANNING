@@ -1,3 +1,12 @@
+/** Advanced Motion Planner (AMP) source file
+  * Originally created from Basic Motion Planner (BMP)
+
+  * History:
+  * 2019-03-20  Created by Alexander Konovalenko
+  * 2019-04-23  Successfully tested on the car. Lightning in the room
+  *             can negatively affect the LIDAR!!!
+  *
+  **/
 #include <advanced_motion_planner/amp_common.h>
 #include <cmath>
 
@@ -6,6 +15,13 @@
 void AMP_utils::polar2xy(float &x, float &y, const float r, const float a) {
   x = r * cosf(a);
   y = r * sinf(a);
+}
+
+void AMP_utils::polar2xy(float* x, float* y, const float r, const float a) {
+  float xx, yy;
+  AMP_utils::polar2xy(xx, yy, r, a);
+  *x = xx;
+  *y = yy;
 }
 
 void AMP_utils::xy2polar(float &r, float &a, const float x, const float y) {

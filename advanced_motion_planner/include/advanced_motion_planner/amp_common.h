@@ -1,5 +1,15 @@
 #ifndef AMP_COMMON_H
 #define AMP_COMMON_H
+/** Advanced Motion Planner (AMP) source file
+  * Originally created from Basic Motion Planner (BMP)
+
+  * History:
+  * 2019-03-20  Created by Alexander Konovalenko
+  * 2019-04-23  Successfully tested on the car. Lightning in the room
+  *             can negatively affect the LIDAR!!!
+  *
+  **/
+
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 /** Main configuration parameters and constants
@@ -10,7 +20,7 @@
 //#define DEBUG1
 //#define DEBUG2
 // publish and/or print extended data/clouds/...
-//#define FUNCTIONAL_DEBUG_INFO
+#define FUNCTIONAL_DEBUG_INFO
 
 #ifdef FUNCTIONAL_DEBUG_INFO
   #define maxSidePointsInPathCloud 10U
@@ -33,16 +43,17 @@
 
 // Limiting angle to turn wheels:
 //#define   SteeringAngleLimit  0.34f // default 19.4deg in BMP:
-#define   SteeringAngleLimit  DEG2RAD(19.4f)
+//#define   SteeringAngleLimit  DEG2RAD(19.4f)  // defualt in BMP
+#define   SteeringAngleLimit  DEG2RAD(29.4f)
 
 // LIDAR data filtering (for visibleCloud) withing following intervals:
-#define   max_range           2.0f
+#define   max_range           2.5f
 #define   min_range           0.10f
 //#define   angle_range         DEG2RAD(28.6f)  // default in BMP
-#define   angle_range         DEG2RAD(45.0f)
+#define   angle_range         DEG2RAD(90.0f)    // tested in car
 
 // safe width & corresponding half angle width where car can go through within max_range
-#define   carWidth_m          0.3f
+#define   carWidth_m          0.33f
 #define   RmaxHalfWidthAngle  atan2f(carWidth_m / 2.0f, max_range)
 #define   RminHalfWidthAngle  atan2f(carWidth_m / 2.0f, min_range)
 
@@ -51,9 +62,17 @@
 #define   pathsAngPitchHalf   (0.5f * pathsAngPitch)
 #define   pathsNumber         (2.0f * angle_range / pathsAngPitch)
 #define   pathsDistPitch      0.3f   // in m, increments in r for the rectangle path finding
+#define   minPathWidth        (carWidth_m * 1.1f)
+#define   maxPathWidth        (minPathWidth * 3.0f)
+#define   pathWidthPitch      ((maxPathWidth - minPathWidth) / 3.0)
 #define   AREA_TOLERANCE      1.0e-4f
+#define   BEST_PATHS_LEN      9     // a number of paths to cache
+#define   NO_GO_MIN_DIST      0.3f  // in m
 
-#define DRIVE_SPEED_DEFAULT   0.35f  // m/s
+// misc parameters:
+// seem that VESC cannot properly manage driving att speeds lower than 0.35 m/s
+#define DRIVE_SPEED_DEFAULT   0.35f   // m/s
+#define BACK_SPEED_DEFAULT    -0.35f  // m/s
 
 
 // This is calls with service static functions:
@@ -63,6 +82,7 @@ class AMP_utils {
 
     // coordinate transformation functions:
     static void polar2xy(float &x, float &y, const float r, const float a);
+    static void polar2xy(float* x, float* y, const float r, const float a);
     static void xy2polar(float &r, float &a, const float x, const float y);
     static pcl::PointXY polar2PointXY(const float r, const float a);
     static pcl::PointXYZ polar2PointXYZ(const float r, const float a);

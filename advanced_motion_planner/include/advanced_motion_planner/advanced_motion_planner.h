@@ -1,6 +1,15 @@
 #ifndef ADVANCED_MOTION_PLANNER_H
 #define ADVANCED_MOTION_PLANNER_H
+/** Advanced Motion Planner (AMP) source file
+  * Originally created from Basic Motion Planner (BMP)
 
+  * History:
+  * 2019-03-20  Changed from BMP by Alexander Konovalenko
+  * 2019-04-23  Successfully tested on the car. Lightning in the room
+  *             can negatively affect the LIDAR!!!
+  *
+  **/
+  
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl/point_types.h>

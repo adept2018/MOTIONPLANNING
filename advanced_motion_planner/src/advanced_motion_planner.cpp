@@ -1,3 +1,13 @@
+/** Advanced Motion Planner (AMP) source file
+  * Originally created from Basic Motion Planner (BMP)
+
+  * History:
+  * 2019-03-20  Ported from BMP by Alexander Konovalenko
+  * 2019-04-23  Successfully tested on the car. Lightning in the room
+  *             can negatively affect the LIDAR!!!
+  *
+  **/
+
 #include <advanced_motion_planner/advanced_motion_planner.h>
 #include <advanced_motion_planner/amp_common.h>
 
@@ -28,12 +38,15 @@ int main(int argc, char** argv) {
             return -1;
         }
 
-        float steeringAngle = 0.0f;
+        float steeringAngle = 0.0f, dist = 0.0f;
 
         if (!motionComputer.visibleCloud.empty()) {
 
-            // Computed angle
+            // Obtained angle and range (distance) from motion computer
             steeringAngle = motionComputer.direction[2];
+            dist = sqrt(motionComputer.direction[0] * motionComputer.direction[0] + \
+            motionComputer.direction[1] * motionComputer.direction[1]);
+
             if (steeringAngle > SteeringAngleLimit) {
                 steeringAngle = SteeringAngleLimit;
             }
@@ -41,18 +54,27 @@ int main(int argc, char** argv) {
                 steeringAngle = -SteeringAngleLimit;
             }
 
-            // Computed direction
+            // Computed vectors
             geometry_msgs::PoseStamped outputMsg;
             outputMsg.header.frame_id = "amp";
 
-            outputMsg.pose.position.x = 0;
-            outputMsg.pose.position.y = 0;
-            outputMsg.pose.position.z = 0;
+            // this is nomral to the front bumper of the car or?
+            outputMsg.pose.position.x = 0.0f;
+            outputMsg.pose.position.y = 0.0f;
+            outputMsg.pose.position.z = 0.0f;
 
-            outputMsg.pose.orientation.x = motionComputer.direction[0];
+            // this is sugested direction to turn (wheels steering limit is not applied)
+            /*outputMsg.pose.orientation.x = motionComputer.direction[0];
             outputMsg.pose.orientation.y = motionComputer.direction[1];
-            outputMsg.pose.orientation.z = 0;
-            outputMsg.pose.orientation.w = 0;
+            outputMsg.pose.orientation.z = 0.0f;
+            outputMsg.pose.orientation.w = 0.0f; */
+
+            // this is sugested direction to turn (wheels steering limit is applied)
+            pcl::PointXY xy = AMP_utils::polar2PointXY(dist, steeringAngle);
+            outputMsg.pose.orientation.x = xy.x;
+            outputMsg.pose.orientation.y = xy.y;
+            outputMsg.pose.orientation.z = 0.0f;
+            outputMsg.pose.orientation.w = 0.0f;
 
             pubPose.publish(outputMsg);
 
@@ -76,14 +98,14 @@ int main(int argc, char** argv) {
         geometry_msgs::PoseStamped direction;
         direction.header.frame_id = "amp";
 
-        direction.pose.position.x = 0;
-        direction.pose.position.y = 0;
-        direction.pose.position.z = 0;
+        direction.pose.position.x = 0.0f;
+        direction.pose.position.y = 0.0f;
+        direction.pose.position.z = 0.0f;
 
-        direction.pose.orientation.x = 1;
-        direction.pose.orientation.y = 0;
-        direction.pose.orientation.z = 0;
-        direction.pose.orientation.w = 0;
+        direction.pose.orientation.x = 1.0f;
+        direction.pose.orientation.y = 0.0f;
+        direction.pose.orientation.z = 0.0f;
+        direction.pose.orientation.w = 0.0f;
         pubDirection.publish(direction);
 
         if (!motionComputer.invisibleCloud.empty()) {
@@ -99,7 +121,9 @@ int main(int argc, char** argv) {
 
         // 0 or computed angle from motionComputer
         ackMsg.drive.steering_angle = steeringAngle;
-        // Use fixed speed (m/s)
+        // Specify speed (m/s), back-off is implemented, although direction is the same
+        // the following did not work perhaps due to light!!!
+        //ackMsg.drive.speed = (dist > NO_GO_MIN_DIST) ? DRIVE_SPEED_DEFAULT : BACK_SPEED_DEFAULT;
         ackMsg.drive.speed = DRIVE_SPEED_DEFAULT;
 
         pubAck.publish(ackMsg);

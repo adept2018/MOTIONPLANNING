@@ -1,3 +1,13 @@
+/** Advanced Motion Planner (AMP) source file
+  * Originally created from Basic Motion Planner (BMP)
+
+  * History:
+  * 2019-03-20  Ported from BMP by Alexander Konovalenko
+  * 2019-04-23  Successfully tested on the car. Lightning in the room
+  *             can negatively affect the LIDAR!!!
+  *
+  **/
+  
 #include <advanced_motion_planner/laserscan_to_pointcloud.h>
 #include <advanced_motion_planner/amp_common.h>
 
@@ -47,18 +57,7 @@ inline void LaserScanToPointCloud::updateStat(const float r, const float a, cons
 }
 
 inline void LaserScanToPointCloud::resetStat() {
-  /*
-  // default values
-  stat.Rminmax.x = 100000.0f;       // impossible value for min
-  stat.Rminmax.y = -1.0f;           // impossible value for max
-  stat.Aminmax.x = 2.0*PI;          // impossible value for min
-  stat.Aminmax.y = -stat.Aminmax.x; // impossible value for max
-  stat.Xminmax.x = 100000.0f;       // impossible value for min
-  stat.Xminmax.y = -stat.Xminmax.x; // impossible value for max
-  stat.Yminmax.x = stat.Xminmax.x;  // impossible value for min
-  stat.Yminmax.y = stat.Xminmax.y;  // impossible value for max */
-
-  // the following default values make more sense, based on filtering of visibleCloud
+  // the following default values are based on filtering of visibleCloud
   stat.Rminmax.x = max_range;       // impossible value for min
   stat.Rminmax.y = min_range;           // impossible value for max
   stat.Aminmax.x = angle_range;          // impossible value for min

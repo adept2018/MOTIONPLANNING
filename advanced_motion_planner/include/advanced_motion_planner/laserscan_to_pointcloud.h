@@ -1,5 +1,14 @@
 #ifndef LASERSCAN_TO_POINTCLOUD_H
 #define LASERSCAN_TO_POINTCLOUD_H
+/** Advanced Motion Planner (AMP) source file
+  * Originally created from Basic Motion Planner (BMP)
+
+  * History:
+  * 2019-03-20  Changed from BMP by Alexander Konovalenko
+  * 2019-04-23  Successfully tested on the car. Lightning in the room
+  *             can negatively affect the LIDAR!!!
+  *
+  **/
 
 #include <cmath>
 #include <sensor_msgs/LaserScan.h>
