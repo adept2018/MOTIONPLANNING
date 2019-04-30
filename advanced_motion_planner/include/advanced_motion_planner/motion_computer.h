@@ -7,6 +7,7 @@
 #include <queue>
 #include <sensor_msgs/LaserScan.h>
 #include <advanced_motion_planner/laserscan_to_pointcloud.h>
+#include "std_msgs/String.h"
 
 class MotionComputer {
 private:
@@ -19,7 +20,7 @@ private:
 
     // Subscriber:
     ros::Subscriber scan_sub;
-
+	void chatterCallback(const std_msgs::String::ConstPtr& msg);
     void scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan);
 
 public:

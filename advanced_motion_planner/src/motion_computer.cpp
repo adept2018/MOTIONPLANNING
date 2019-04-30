@@ -2,8 +2,14 @@
 
 #define PI atan(1)*4;
 
+void MotionComputer::chatterCallback(const std_msgs::String::ConstPtr& msg)
+{
+	ROS_INFO("I heard: [%s]", msg->data.c_str());
+}
+
 MotionComputer::MotionComputer(ros::NodeHandle &nh) {
-    scan_sub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
+    // scan_sub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
+    scan_sub = nh.subscribe("/odom_zed", 10, &MotionComputer::chatterCallback, this);
 }
 
 void MotionComputer::scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan) {
