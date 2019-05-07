@@ -2,39 +2,39 @@
 
 namespace math {
 
-// the purpose of the vec2 is to have units
-// thus private members
-  class vec2 {
-  public:
-      constexpr vec2() = delete;
-      constexpr vec2(const vec2&) = default;
-      constexpr vec2(vec2&&) = default;
+    template<typename T>
+    struct tvec2 {
+        tvec2<T>() = delete;
+        constexpr tvec2<T>(const tvec2<T>&) = default;
+        constexpr tvec2<T>(tvec2<T>&&) = default;
 
-      constexpr explicit vec2(float point): x(point), y(point) {}
-      constexpr explicit vec2(float ox, float oy): x(ox), y(oy) {}
+        tvec2<T>& operator=(const tvec2<T>&) = default;
+        tvec2<T>& operator=(tvec2<T>&&) = default;
 
-      // constexpr vec2(const vec2& point): mX(point.GetX()), mY(point.GetY()) {}
+        constexpr explicit tvec2<T>(T point): x(point), y(point) {}
+        constexpr explicit tvec2<T>(T ox, T oy): x(ox), y(oy) {}
 
-      // constexpr vec2& operator=(const vec2&) = default;
-      // constexpr vec2& operator=(vec2&&) = default;
+        T x;
+        T y;
+    };
 
-  public:
-      float x;
-      float y;
-  };
+    using vec2 = tvec2<float>;
 
-  class vec3 {
-  public:
-      constexpr vec3() = delete;
-      constexpr vec3(const vec3&) = default;
-      constexpr vec3(vec3&&) = default;
+    template<typename T>
+    struct tvec3 {
+      tvec3<T>() = delete;
+      constexpr tvec3<T>(const tvec3<T>&) = default;
+      constexpr tvec3<T>(tvec3<T>&&) = default;
 
-      constexpr explicit vec3(float point): x(point), y(point), z(point) {}
-      constexpr explicit vec3(float ox, float oy, float oz): x(ox), y(oy), z(oz) {}
-  public:
-      float x;
-      float y;
-      float z;
-  };
+      tvec3<T>& operator=(const tvec3<T>&) = default;
+      tvec3<T>& operator=(tvec3<T>&&) = default;
+
+      constexpr explicit tvec3<T>(T point): x(point), y(point), z(point) {}
+      constexpr explicit tvec3<T>(T ox, T oy, T oz): x(ox), y(oy), z(oz) {}
+
+      T x, y, z;
+    };
+
+    using vec3 = tvec3<float>;
 
 };

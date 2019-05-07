@@ -2,6 +2,10 @@
 
 #include <cmath>
 #include <sensor_msgs/LaserScan.h>
+#include <vector>
+#include <memory>
+#include <limits>
+#include <iostream>
 
 // PCL specific includes:
 #include <pcl/point_cloud.h>

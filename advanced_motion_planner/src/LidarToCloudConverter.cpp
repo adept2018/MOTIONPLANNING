@@ -1,15 +1,15 @@
-#include <advanced_motion_planner/LidarToCloudConverter.h>
+#include "advanced_motion_planner/LidarToCloudConverter.h"
 
 LidarToCloudConverter::LidarToCloudConverter():
-    mDistanceRange(0.3f, 2.0f),
+    mDistanceRange(0.1f, 0.5f),
     mAngleRange(-0.5f, 0.5f){}
 
 bool LidarToCloudConverter::isInRange(float range, float angle) {
 
-  if (range > GetMaxDistance() ||
-      range < GetMinDistance()) {
-      return false;
-  }
+  // if (range > GetMaxDistance() ||
+  //     range < GetMinDistance()) {
+  //     return false;
+  // }
 
   if (angle < GetMinAngle() ||
       angle > GetMaxAngle()) {
@@ -19,28 +19,33 @@ bool LidarToCloudConverter::isInRange(float range, float angle) {
   return true;
 }
 
-pcl::PointCloud<pcl::PointXYZ> LidarToCloudConverter::scanToCloud(const sensor_msgs::LaserScan &scan) {
+pcl::PointCloud<pcl::PointXYZ> LidarToCloudConverter::scanToCloud(const sensor_msgs::LaserScan& scan) {
 
-    constexpr float pi = atanf(1.0f) * 4.0f;
+    const unsigned int RangesSize = scan.ranges.size();
+    // for debugging
+    std::cout << RangesSize << std::endl;
+
+    constexpr float PI = atanf(1.0f) * 4.0f;
+
+    // Offset of the lidar is 90 degrees
+    constexpr float offset = 0.5f * PI;
+
     pcl::PointCloud<pcl::PointXYZ> cloud;
-    cloud.reserve(1000); //check this thing out
+    cloud.reserve(RangesSize); //check this thing out
 
-    for (uint32_t i = 0; i < scan.ranges.size(); ++i) {
+    pcl::PointXYZ point(0.0f, 0.0f, 0.0f);
 
-        const float r = scan.ranges[i];
+    //TODO: start/end looping directly from min/max angle
+    for (uint32_t i = 0; i < RangesSize; ++i) {
 
-        // Offset of the lidar is 90 degrees
-        constexpr float offset = 0.5f * pi;
-        const float theta = scan.angle_min + static_cast<float>(i) * scan.angle_increment + offset;
+        // distance
+        point.x = scan.ranges[i];
 
-        if (isInRange(r, theta)) {
-          // point.SetX(r * cos(theta));
-          // point.SetY(r * sin(theta));
-          pcl::PointXYZ point;
-          point.x = r * cosf(theta);
-          point.y = r * sinf(theta);
-          point.z = theta;
+        // theta
+        point.y = scan.angle_min + static_cast<float>(i) * scan.angle_increment + offset;
 
+        if (!isInRange(point.x, point.y)) {
+          // point.x = std::numeric_limits<float>::infinity();
           cloud.push_back(point);
         }
     }

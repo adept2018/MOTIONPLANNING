@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
             return -1;
         }
 
-        if (!motionComputer.getCloud().empty()) {
+        if (!motionComputer.isCloudEmpty()) {
 
             // Computed direction
             geometry_msgs::PoseStamped outputMsg;
