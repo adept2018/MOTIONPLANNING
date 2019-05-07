@@ -10,6 +10,8 @@ void MotionComputer::scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan) 
 }
 
 bool MotionComputer::computeMotion() {
+    parameters.update();
+    
     while (!m_scan_queue.empty()) {
         sensor_msgs::LaserScan scan = m_scan_queue.front();
         m_scan_queue.pop();

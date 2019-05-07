@@ -11,6 +11,7 @@
 
 class WallFollower {
 private:
+    Parameters parameters;
 
 public:
     WallFollower() {}

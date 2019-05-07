@@ -16,7 +16,6 @@ private:
     void scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan);
 
     LaserScanToPointCloud laserScanToPointCloud;
-    Parameters parameters;
     WallFollower wallFollower;
 
     bool m_acquired_scan;
@@ -25,6 +24,9 @@ private:
 
     // Subscriber:
     ros::Subscriber m_subscriber;
+
+protected:
+    Parameters parameters;
 
 public:
     MotionComputer(ros::NodeHandle &nh);
