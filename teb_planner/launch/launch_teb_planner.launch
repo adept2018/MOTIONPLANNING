@@ -1,0 +1,13 @@
+<!-- -*- mode: XML -*- -->
+<launch>
+  <include file="$(find teb_planner)/launch/mb_navstack_ack.launch">
+  </include>
+
+  <include file="$(find racecar)/launch/teleop.launch">
+  </include>
+
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find navstack)/rviz/navstack.rviz">
+  </node>
+
+
+</launch>
