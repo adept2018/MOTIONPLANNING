@@ -1,15 +1,38 @@
 #include <advanced_motion_planner/motion_computer.h>
+#include <vector>
 
 #define PI atan(1)*4;
+#define BUCKET_COUNT 16
 
-void MotionComputer::chatterCallback(const std_msgs::String::ConstPtr& msg)
+void MotionComputer::imageDepthCallback(const sensor_msgs::Image::ConstPtr& msg)
 {
-	ROS_INFO("I heard: [%s]", msg->data.c_str());
+	float *depth = (float *) (&msg->data[0]);
+	int u = msg->width/2;
+	int v = msg->height/2;
+	int centerIndex = u + msg->width * v;
+		
+	int start_y = msg->height/3 * msg->width;
+	int end_y = msg->height/3 * 2 * msg->width;
+	int bucket_width =  msg->width / BUCKET_COUNT;
+	float number_of_points =  (end_y - start_y) * bucket_width;
+	std::vector<float> depth_vec(BUCKET_COUNT);
+
+	for(int i = start_y; i < end_y; i++)
+	{
+		int vec_index = i%msg->width / bucket_width;
+		depth_vec[vec_index] += depth[i];  
+		depth_vec[vec_index] /= number_of_points;
+	}
+
+	for(int i = 0; i < depth_vec.size(); i++)
+		ROS_INFO("Point[%d] = %f", i, depth_vec[i]);
+	ROS_INFO("Center dist. [%g]", depth[centerIndex]);
 }
 
 MotionComputer::MotionComputer(ros::NodeHandle &nh) {
     // scan_sub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
-    scan_sub = nh.subscribe("/odom_zed", 10, &MotionComputer::chatterCallback, this);
+    //scan_sub = nh.subscribe("/odom_zed", 10, &MotionComputer::chatterCallback, this);
+      scan_sub = nh.subscribe("/depth/depth_registered", 10, &MotionComputer::imageDepthCallback, this);
 }
 
 void MotionComputer::scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan) {
