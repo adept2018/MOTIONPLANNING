@@ -47,6 +47,7 @@ public:
         return mCloud;
     }
     inline bool isCloudEmpty() {return mCloud.empty();}
+
 private:
     void scanCallBack(const sensor_msgs::LaserScan::ConstPtr& scan);
 
@@ -59,8 +60,8 @@ private:
     ros::Subscriber mScanSub;                      // Subscriber:
 
     //TODO: thread safety for every member
-    float mSafeRadius; // {m}
-    float mTurnAngle;
+    float mSafeRadius;        // {m}
+    float mTurnAngle;         // {degrees}
     float mVelocityAmplitude; // {m/s}
 
 };

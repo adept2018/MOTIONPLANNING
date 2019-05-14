@@ -28,31 +28,75 @@ bool MotionComputer::computeMotion() {
         // we get the new scan
         mCloud = std::move(mLidarToCloudConverter.scanToCloud(scan));
 
-        //here we start our implementation :)
+        //here we start new implementation :)
 
         bool activeZone = false;
         Zone currentZone(math::vec2(0.0f));
 
-        for(const auto& point: mCloud){
+        float maxFreeDistance(0.0f);
+        uint8_t zoneWithMaxClearance = 0;
+        uint8_t currentZoneWithMaxClearance = 0;
 
-            if (point.x >= mSafeRadius){
-                if (!activeZone){
+        for(const auto& point: mCloud) {
+
+            if (point.x >= mSafeRadius) {
+                if (!activeZone) {
                     currentZone.PointA = math::vec2(point.x, point.y);
                     activeZone = true;
                 }
+                if(maxFreeDistance < point.x){
+                    maxFreeDistance = point.x;
+                    currentZoneWithMaxClearance = mZones.size();
+                }
             }
-            else if (activeZone){
-                currentZone.PointB = math::vec2(point.x, point.y);
+            else if (activeZone) {
+                const float x1 = currentZone.PointA.x * cos(currentZone.PointA.y);
+                const float y1 = currentZone.PointA.x * sin(currentZone.PointA.y);
+                const float x2 = point.x * cos(point.y);
+                const float y2 = point.x * sin(point.y);
+                // check if the car can fit between the points of the zone
+                if(pow(x1-x2,2.0f) + pow(y1-y2,2.0f) > 0.16f){
+                    currentZone.PointB = math::vec2(point.x, point.y);
+                    mZones.emplace_back(currentZone);
+                    zoneWithMaxClearance = currentZoneWithMaxClearance;
+                }
                 activeZone = false;
-                mZones.emplace_back(currentZone);
+                // if(maxFreeDistance < point.x){
+                //     maxFreeDistance = point.x;
+                // }
+
             }
         }
 
-        // Choose the zone to drive in
+        //if we still have an active zone then we close it with the last element
+        //of the cloud
+        if (activeZone){
 
-        if(mZones.empty()){
+            const math::vec2 point(mCloud.back().x, mCloud.back().y);
+            const float x1 = currentZone.PointA.x * cos(currentZone.PointA.y);
+            const float y1 = currentZone.PointA.x * sin(currentZone.PointA.y);
+            const float x2 = point.x * cos(point.y);
+            const float y2 = point.x * sin(point.y);
+            // check if the car can fit between the points of the zone
+            if(pow(x1 - x2, 2.0f) + pow(y1 - y2, 2.0f) > 0.16f){
+                currentZone.PointB = math::vec2(point.x, point.y);
+                mZones.emplace_back(currentZone);
+                zoneWithMaxClearance = currentZoneWithMaxClearance;
+            }
+            activeZone = false;
+        }
+
+        // Choose the zone to drive in or slow down
+        if(mZones.empty()) {
+
             mVelocityAmplitude *= 0.25f; //decrease velocity to 25% of current
             mTurnAngle = 0.0f;
+        }
+        else{
+
+            mVelocityAmplitude = 0.5f;
+            mTurnAngle = 0.5f * (mZones[zoneWithMaxClearance - 1].PointB.y +
+                        mZones[zoneWithMaxClearance - 1].PointA.y);
         }
 
         // old planner start

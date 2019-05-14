@@ -14,11 +14,12 @@ namespace math {
         constexpr explicit tvec2<T>(T point): x(point), y(point) {}
         constexpr explicit tvec2<T>(T ox, T oy): x(ox), y(oy) {}
 
-        T x;
-        T y;
+        T x, y;
     };
 
     using vec2 = tvec2<float>;
+    using dvec2 = tvec2<double>;
+    using ivec2 = tvec2<int>;
 
     template<typename T>
     struct tvec3 {

@@ -6,17 +6,17 @@ LidarToCloudConverter::LidarToCloudConverter():
 
 bool LidarToCloudConverter::isInRange(float range, float angle) {
 
-  // if (range > GetMaxDistance() ||
-  //     range < GetMinDistance()) {
-  //     return false;
-  // }
-
-  if (angle < GetMinAngle() ||
+    if (angle < GetMinAngle() ||
       angle > GetMaxAngle()) {
       return false;
-  }
+    }
 
-  return true;
+    // if (range > GetMaxDistance() ||
+    //     range < GetMinDistance()) {
+    //     return false;
+    // }
+
+    return true;
 }
 
 pcl::PointCloud<pcl::PointXYZ> LidarToCloudConverter::scanToCloud(const sensor_msgs::LaserScan& scan) {
