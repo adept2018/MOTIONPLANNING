@@ -12,6 +12,10 @@
 
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
+// PCL specific includes:
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <string>
 /** Main configuration parameters and constants
   * used in the AMP module
   */
@@ -21,13 +25,32 @@
 //#define DEBUG2
 // publish and/or print extended data/clouds/...
 #define FUNCTIONAL_DEBUG_INFO
+//#define OFFCAR_DEBUG
 
 #ifdef FUNCTIONAL_DEBUG_INFO
   #define maxSidePointsInPathCloud 10U
 #endif
 
+#define BACKWARD_MOTION
+
+// naming constants for the publisher and data/clouds
+const std::string AMP_NAME = "amp";
+const std::string CLOUD_VIS_NAME = AMP_NAME + "/cloud/visible";
+const std::string CLOUD_INVIS_NAME = AMP_NAME + "/cloud/invisible";
+const std::string POSE_VECTOR = AMP_NAME + "/pose";
+const std::string NORMDIR_VECTOR = AMP_NAME + "/derection";
+const std::string VESC_NAME = "vesc/high_level/ackermann_cmd_mux/input/default";
+#ifdef FUNCTIONAL_DEBUG_INFO
+  const std::string PATH_CLOUD = AMP_NAME + "/cloud/pathCloud";
+#endif
+#ifdef OFFCAR_DEBUG
+  const std::string OFFCAR = "_DBG";
+#else
+  const std::string OFFCAR = "";
+#endif
+
 #ifndef PI
-  #define   PI                  3.141592654f
+  #define   PI                3.141592654f
 #endif
 #ifndef   DEG2RAD
   #define DEG2RAD(x)          (x * PI / 180.0f)
@@ -48,9 +71,14 @@
 
 // LIDAR data filtering (for visibleCloud) withing following intervals:
 #define   max_range           2.5f
-#define   min_range           0.10f
+//#define   min_range           0.10f // tested OK on 2019-04-23
+#define   min_range           0.05f
 //#define   angle_range         DEG2RAD(28.6f)  // default in BMP
 #define   angle_range         DEG2RAD(90.0f)    // tested in car
+// filtering parameters for moving back (back off):
+#define   max_range_Back      0.70f
+#define   min_range_Back      0.25f
+#define   angle_range_Back    DEG2RAD(45.0f)
 
 // safe width & corresponding half angle width where car can go through within max_range
 #define   carWidth_m          0.33f
@@ -63,8 +91,8 @@
 #define   pathsNumber         (2.0f * angle_range / pathsAngPitch)
 #define   pathsDistPitch      0.3f   // in m, increments in r for the rectangle path finding
 #define   minPathWidth        (carWidth_m * 1.1f)
-#define   maxPathWidth        (minPathWidth * 3.0f)
-#define   pathWidthPitch      ((maxPathWidth - minPathWidth) / 3.0)
+#define   maxPathWidth        (minPathWidth * 5.0f)
+#define   pathWidthPitch      ((maxPathWidth - minPathWidth) / 4.0)
 #define   AREA_TOLERANCE      1.0e-4f
 #define   BEST_PATHS_LEN      9     // a number of paths to cache
 #define   NO_GO_MIN_DIST      0.3f  // in m
@@ -72,8 +100,10 @@
 // misc parameters:
 // seem that VESC cannot properly manage driving att speeds lower than 0.35 m/s
 #define DRIVE_SPEED_DEFAULT   0.35f   // m/s
-#define BACK_SPEED_DEFAULT    -0.35f  // m/s
-
+#ifdef BACKWARD_MOTION
+  #define BACK_SPEED_DEFAULT -0.35f  // m/s
+  #define BACK_DISTANCE       0.7f  // m
+#endif
 
 // This is calls with service static functions:
 class AMP_utils {
@@ -101,6 +131,18 @@ class AMP_utils {
     #ifdef FUNCTIONAL_DEBUG_INFO
       static pcl::PointXYZ getPointInBetween(const pcl::PointXY &A, const pcl::PointXY &B, const uint i, const uint max);
     #endif
+};
+
+class AMP_stat {
+  public:
+    pcl::PointXY Rminmax, Aminmax, Xminmax, Yminmax;
+    bool isUpdated;
+
+    AMP_stat() {isUpdated = false;}
+    void resetStat();
+    void updateStat(const float r, const float a, const pcl::PointXYZ &point);
+    bool isStatInitialized();
+
 };
 
 #endif //AMP_COMMON_H

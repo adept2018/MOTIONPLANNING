@@ -34,8 +34,7 @@ bool MotionComputer::computeMotion() {
           pathCloud.clear();
         #endif
 
-        visibleCloud = laserScanToPointCloud.scanToCloud(scan, true);
-        invisibleCloud = laserScanToPointCloud.scanToCloud(scan, false);
+        laserScanToPointCloud.scanToCloud(visibleCloud, invisibleCloud, scan);
 
         int numberOfPoints = visibleCloud.size();
 
@@ -49,7 +48,7 @@ bool MotionComputer::computeMotion() {
             //-------------------------------------------------
             // METHOD-2 analyze what is the lagest rectangular path available at the front
             //-------------------------------------------------
-            pcl::PointXYZ raw = getLargestRectangularDirection(numberOfPoints);
+            pcl::PointXYZ raw = getLargestRectangularDirection(numberOfPoints, laserScanToPointCloud);
             r = raw.x;
             theta = raw.y;
 
@@ -105,8 +104,8 @@ float MotionComputer::getWeightedAverageDirection(const int n) {
   return theta_w;
 }
 
-pcl::PointXYZ MotionComputer::getLargestRectangularDirection(const int n) {
-  float a_best = 0.0f, r_best = 0.0f, w_best = 0.0f, a_i, r_i, w_i;
+pcl::PointXYZ MotionComputer::getLargestRectangularDirection(const int n, const LaserScanToPointCloud &ls) {
+  register float a_best = 0.0f, r_best = 0.0f, w_best = 0.0f, a_i, r_i, w_i;
   uint counter = 0;
   pcl::PointXYZ raw;
 
@@ -115,12 +114,20 @@ pcl::PointXYZ MotionComputer::getLargestRectangularDirection(const int n) {
 
     initBestPathsCacher();
 
-    // loop through path widths
+    // loop through path widths:
     for(w_i = minPathWidth; w_i <= maxPathWidth; w_i += pathWidthPitch) {
-      // loop through all paths (angles)
-      for(a_i = (-angle_range + pathsAngPitchHalf); a_i <= (angle_range - pathsAngPitchHalf); a_i += pathsAngPitch) {
-        // loop: increment distance (far end)
+
+      /*float amin = -angle_range + pathsAngPitchHalf;
+      float amax = angle_range - pathsAngPitchHalf;*/
+      // optimize for performance:
+      float amin = ls.statVis.Aminmax.x + pathsAngPitchHalf;
+      float amax = ls.statVis.Aminmax.y - pathsAngPitchHalf;
+      // loop through all paths (angles):
+      for(a_i = amin; a_i <= amax; a_i += pathsAngPitch) {
+
+        // loop: increment distance (far end):
         for(r_i = (min_range + pathsDistPitch); r_i < max_range; r_i += pathsDistPitch) {
+        //for(r_i = (min_range + pathsDistPitch); r_i < ls.statVis.Rminmax.y; r_i += pathsDistPitch) {
 
           // debug:
           #ifdef DEBUG2

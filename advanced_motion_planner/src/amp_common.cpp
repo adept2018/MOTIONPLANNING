@@ -97,7 +97,6 @@ bool AMP_utils::isInsideRectangle(const pcl::PointXY &P, const pcl::PointXY &A,
     float ii = (i>=max) ? 1.0f : (float(i) / float(max));
 
     res.x = fminf(A.x, B.x) + fabsf(B.x - A.x) * ii;
-    //res.y = fminf(A.y, B.y) + fabsf(B.y - A.y) * ii;
     res.y = a * res.x + b;
     res.z = 0.0f;
 
@@ -105,3 +104,70 @@ bool AMP_utils::isInsideRectangle(const pcl::PointXY &P, const pcl::PointXY &A,
   }
 
 #endif
+
+/*AMP_stat::AMP_stat() {
+  resetStat();
+}*/
+
+void AMP_stat::updateStat(const float r, const float a, const pcl::PointXYZ &point) {
+  if (Rminmax.x >= r) {
+    Rminmax.x = r; //min r
+    isUpdated = true;
+  }
+  if (Rminmax.y < r) {
+    Rminmax.y = r; // max r
+    isUpdated = true;
+  }
+  if (Aminmax.x >= a) {
+    Aminmax.x = a; //min angle
+    isUpdated = true;
+  }
+  if (Aminmax.y < a) {
+    Aminmax.y = a; // max angle
+    isUpdated = true;
+  }
+  if (Xminmax.x >= point.x) {
+    Xminmax.x = point.x; //min x
+    isUpdated = true;
+  }
+  if (Xminmax.y < point.x) {
+    Xminmax.y = point.x; // max x
+    isUpdated = true;
+  }
+  if (Yminmax.x >= point.y) {
+    Yminmax.x = point.y; //min y
+    isUpdated = true;
+  }
+  if (Yminmax.y < point.y) {
+    Yminmax.y = point.y; // max y
+    isUpdated = true;
+  }
+}
+
+void AMP_stat::resetStat() {
+  isUpdated = false;
+  // the following default values are based on filtering of visibleCloud
+  Rminmax.x = max_range;       // impossible value for min
+  Rminmax.y = min_range;           // impossible value for max
+  Aminmax.x = angle_range;          // impossible value for min
+  Aminmax.y = -Aminmax.x; // impossible value for max
+  Xminmax.x = max_range;       // impossible value for min
+  Xminmax.y = -Xminmax.x; // impossible value for max
+  Yminmax.x = Xminmax.x;  // impossible value for min
+  Yminmax.y = -Yminmax.x;  // impossible value for max
+}
+
+// check if all ranges are simultaneously processed (i.e. min <= mmax)
+bool AMP_stat::isStatInitialized() {
+  bool res = false;
+  if(Rminmax.x <= Rminmax.y) {
+    if(Aminmax.x <= Aminmax.y) {
+      if(Xminmax.x <= Xminmax.y) {
+        if(Yminmax.x <= Yminmax.y) {
+          res = true;
+        }
+      }
+    }
+  }
+  return res;
+}

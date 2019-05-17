@@ -11,29 +11,21 @@
   **/
 
 #include <cmath>
+#include <advanced_motion_planner/amp_common.h>
 #include <sensor_msgs/LaserScan.h>
-// PCL specific includes:
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
+
 
 class LaserScanToPointCloud {
 private:
-    bool filter(float range, float angle);
-    void resetStat();
-    void updateStat(const float r, const float a, const pcl::PointXYZ &point);
-    bool isStatInitialized();
+    bool filterGenerel(const float range, const float angle, const float rmin, const float rmax, const float amin, const float amax);
+    bool filterVisible(const float range, const float angle);
+    bool filterBackOff(const float range, const float angle);
 
 public:
-    struct {
-      // .x is min and .y is max
-      pcl::PointXY Rminmax;
-      pcl::PointXY Aminmax;
-      pcl::PointXY Xminmax;
-      pcl::PointXY Yminmax;
-    } stat;
+    AMP_stat statVis, statInvis, statBackOff;
 
     LaserScanToPointCloud() {}
-    pcl::PointCloud<pcl::PointXYZ> scanToCloud(const sensor_msgs::LaserScan &scan, bool insideFilter);
+    void scanToCloud(pcl::PointCloud<pcl::PointXYZ> &viscld, pcl::PointCloud<pcl::PointXYZ> &inviscld, const sensor_msgs::LaserScan &scan);
 };
 
 #endif //LASERSCAN_TO_POINTCLOUD_H

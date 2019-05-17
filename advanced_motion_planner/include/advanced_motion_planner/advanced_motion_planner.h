@@ -9,7 +9,7 @@
   *             can negatively affect the LIDAR!!!
   *
   **/
-  
+
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl/point_types.h>
@@ -25,8 +25,8 @@ ros::Publisher pubCloudInvisible;
 #ifdef FUNCTIONAL_DEBUG_INFO
 ros::Publisher pubPathCloud;
 #endif
-ros::Publisher pubPose;
-ros::Publisher pubDirection;
+ros::Publisher pubPoseVector;
+ros::Publisher pubNormDirection;
 ros::Publisher pubAck;
 
 #endif //ADVANCED_MOTION_PLANNER_H

@@ -7,78 +7,66 @@
   *             can negatively affect the LIDAR!!!
   *
   **/
-  
-#include <advanced_motion_planner/laserscan_to_pointcloud.h>
-#include <advanced_motion_planner/amp_common.h>
 
-bool LaserScanToPointCloud::filter(float range, float angle) {
+#include <advanced_motion_planner/laserscan_to_pointcloud.h>
+
+inline bool LaserScanToPointCloud::filterGenerel(const float range, const float angle,
+  const float rmin, const float rmax, const float amin, const float amax) {
   bool res;
 
-  res = (range > max_range || range < min_range) ? false : ((angle < -angle_range || angle > angle_range) ? false : true);
+  res = (range > rmax || range < rmin) ? false : ((angle < amin || angle > amax) ? false : true);
 
   return res;
 }
 
-pcl::PointCloud<pcl::PointXYZ> LaserScanToPointCloud::scanToCloud(const sensor_msgs::LaserScan &scan, bool insideFilter) {
-    pcl::PointXYZ point;
-    pcl::PointCloud<pcl::PointXYZ> cloud;
 
-    resetStat();
-
-    for (int i = 0; i < scan.ranges.size(); ++i) {
-
-        float r = scan.ranges[i];
-        float theta = scan.angle_min + float(i) * scan.angle_increment + LIDAR_ANG_OFFSET;
-
-        if (filter(r, theta) == insideFilter) {
-          // visible cloud
-          AMP_utils::polar2PointXYZ(point, r, theta);
-          point.z = 0.0f;
-
-          // collect some statistics about the LIDAR points
-          updateStat(r, theta, point);
-
-          cloud.push_back(point);
-        }
-    }
-
-    return cloud;
+bool LaserScanToPointCloud::filterVisible(const float range, const float angle) {
+  return filterGenerel(range, angle, min_range, max_range, -angle_range, angle_range);
 }
 
-inline void LaserScanToPointCloud::updateStat(const float r, const float a, const pcl::PointXYZ &point) {
-  if (stat.Rminmax.x >= r) stat.Rminmax.x = r; //min r
-  if (stat.Rminmax.y < r) stat.Rminmax.y = r; // max r
-  if (stat.Aminmax.x >= a) stat.Aminmax.x = a; //min angle
-  if (stat.Aminmax.y < a) stat.Aminmax.y = a; // max angle
-  if (stat.Xminmax.x >= point.x) stat.Xminmax.x = point.x; //min x
-  if (stat.Xminmax.y < point.x) stat.Xminmax.y = point.x; // max x
-  if (stat.Yminmax.x >= point.y) stat.Yminmax.x = point.y; //min y
-  if (stat.Yminmax.y < point.y) stat.Yminmax.y = point.y; // max y
+bool LaserScanToPointCloud::filterBackOff(const float range, const float angle) {
+  return filterGenerel(range, angle, min_range_Back, max_range_Back, -angle_range_Back, angle_range_Back);
 }
 
-inline void LaserScanToPointCloud::resetStat() {
-  // the following default values are based on filtering of visibleCloud
-  stat.Rminmax.x = max_range;       // impossible value for min
-  stat.Rminmax.y = min_range;           // impossible value for max
-  stat.Aminmax.x = angle_range;          // impossible value for min
-  stat.Aminmax.y = -stat.Aminmax.x; // impossible value for max
-  stat.Xminmax.x = max_range;       // impossible value for min
-  stat.Xminmax.y = -stat.Xminmax.x; // impossible value for max
-  stat.Yminmax.x = stat.Xminmax.x;  // impossible value for min
-  stat.Yminmax.y = -stat.Yminmax.x;  // impossible value for max
-}
 
-// check if all ranges are simultaneously processed (i.e. min <= mmax)
-inline bool LaserScanToPointCloud::isStatInitialized() {
-  bool res = false;
-  if(stat.Rminmax.x <= stat.Rminmax.y) {
-    if(stat.Aminmax.x <= stat.Aminmax.y) {
-      if(stat.Xminmax.x <= stat.Xminmax.y) {
-        if(stat.Yminmax.x <= stat.Yminmax.y) {
-          res = true;
-        }
+void LaserScanToPointCloud::scanToCloud(pcl::PointCloud<pcl::PointXYZ> &viscld, pcl::PointCloud<pcl::PointXYZ> &inviscld, const sensor_msgs::LaserScan &scan) {
+  pcl::PointXYZ point;
+
+  statVis.resetStat();
+  statBackOff.resetStat();
+  // we save CPU cycles here:
+  statInvis.resetStat();
+
+  for (int i = 0; i < scan.ranges.size(); ++i) {
+    // this is visible cloud
+    float r = scan.ranges[i];
+    float theta = scan.angle_min + float(i) * scan.angle_increment + LIDAR_ANG_OFFSET;
+
+    /*#ifdef DEBUG2
+      std::cout << "scan.angle_min (deg)= " << RAD2DEG(scan.angle_min) << \
+        "\t scan.angle_increment (deg) = " << RAD2DEG(scan.angle_increment) << \
+        "\t scan.ranges.size() = " << scan.ranges.size() << std::endl;
+    #endif */
+
+    AMP_utils::polar2PointXYZ(point, r, theta);
+    point.z = 0.0f;
+
+    if (filterVisible(r, theta)) {
+      // visible cloud
+
+      // collect some statistics about the LIDAR points
+      statVis.updateStat(r, theta, point);
+      viscld.push_back(point);
+    } else {
+      // invisible cloud is here
+      bool bckOff = filterBackOff(r, theta);
+      if (bckOff) {
+        // behind the car obstacle is found, only update statistics, no cloud needed
+        statBackOff.updateStat(r, theta, point);
       }
+      // we save CPU cycles here:
+      //statInvis.updateStat(r, theta, point);
+      inviscld.push_back(point);
     }
   }
-  return res;
 }

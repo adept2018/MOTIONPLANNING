@@ -44,7 +44,7 @@ public:
     bool computeMotion();
     // implemented methods for determination of motion direction:
     float getWeightedAverageDirection(const int NoOfPoints);
-    pcl::PointXYZ getLargestRectangularDirection(const int NoOfPoints);
+    pcl::PointXYZ getLargestRectangularDirection(const int NoOfPoints, const LaserScanToPointCloud &ls);
     void buildRectangle(pcl::PointXY &A, pcl::PointXY &B, pcl::PointXY &C, pcl::PointXY &D,
       const float r, const float a, const float w);
     bool areAnyPointsInsideRectangle(const int n, const float r_i, const float a_i, const float w_i);
