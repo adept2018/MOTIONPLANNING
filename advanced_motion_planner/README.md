@@ -1,2 +1,3 @@
-Advanced motion planner which sums the vectors to each pointcloud point and
-publishes the negative of the resulting vector.
+Advanced motion planner which selects the best available path(s). Each path is an rectangle suitable for passage of the car. 
+
+Developer: Alexander Konovalenko
