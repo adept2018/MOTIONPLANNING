@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <queue>
+#include <vector>
 #include <sensor_msgs/LaserScan.h>
 #include <advanced_motion_planner/laserscan_to_pointcloud.h>
 #include <sensor_msgs/Image.h>
@@ -17,6 +18,7 @@ private:
     bool acquired_scan;
 
     std::queue<sensor_msgs::LaserScan> scan_queue;
+    std::queue<std::vector<float>> depth_queue;
 
     // Subscriber:
     ros::Subscriber scan_sub;

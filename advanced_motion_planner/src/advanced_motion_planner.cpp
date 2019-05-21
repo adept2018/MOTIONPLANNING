@@ -7,10 +7,10 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     MotionComputer motionComputer(nh);
 
-    pubPose = nh.advertise<geometry_msgs::PoseStamped>("bmp/pose", 10);
-    pubCloudVisible = nh.advertise<sensor_msgs::PointCloud2>("bmp/cloud/visible", 10);
-    pubCloudInvisible = nh.advertise<sensor_msgs::PointCloud2>("bmp/cloud/invisible", 10);
-    pubDirection = nh.advertise<geometry_msgs::PoseStamped>("bmp/direction", 10);
+    pubPose = nh.advertise<geometry_msgs::PoseStamped>("amp/pose", 10);
+    pubCloudVisible = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/visible", 10);
+    pubCloudInvisible = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/invisible", 10);
+    pubDirection = nh.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
     pubAck = nh.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
 
     ros::Rate rate(40.0);
@@ -25,21 +25,32 @@ int main(int argc, char** argv) {
         }
 
         float steeringAngle = 0;
+        if(motionComputer.direction.size() == 0) continue;
+            steeringAngle = motionComputer.direction[2]*0.0174532;
+            /* if (steeringAngle > 0.34) { */
+            /*     steeringAngle = 0.34; */
+            /* } */
+            /* if (steeringAngle < -0.34) { */
+            /*     steeringAngle = -0.34; */
+            /* } */
+            ROS_INFO("ANGLE2 %f", steeringAngle);
 
         if (!motionComputer.visibleCloud.empty()) {
 
             // Computed angle
             steeringAngle = motionComputer.direction[2];
+            ROS_INFO("ANGLE %f", steeringAngle);
             if (steeringAngle > 0.34) {
                 steeringAngle = 0.34;
             }
             if (steeringAngle < -0.34) {
                 steeringAngle = -0.34;
             }
+            ROS_INFO("ANGLE2 %f", steeringAngle);
 
             // Computed direction
             geometry_msgs::PoseStamped outputMsg;
-            outputMsg.header.frame_id = "bmp";
+            outputMsg.header.frame_id = "amp";
 
             outputMsg.pose.position.x = 0;
             outputMsg.pose.position.y = 0;
@@ -55,13 +66,13 @@ int main(int argc, char** argv) {
             // Visible point cloud from lidar
             sensor_msgs::PointCloud2 pclmsg;
             pcl::toROSMsg(motionComputer.visibleCloud, pclmsg);
-            pclmsg.header.frame_id = "bmp";
+            pclmsg.header.frame_id = "amp";
             pubCloudVisible.publish(pclmsg);
         }
 
         // Vector showing forward direction
         geometry_msgs::PoseStamped direction;
-        direction.header.frame_id = "bmp";
+        direction.header.frame_id = "amp";
 
         direction.pose.position.x = 0;
         direction.pose.position.y = 0;
@@ -78,7 +89,7 @@ int main(int argc, char** argv) {
             // Non visible point cloud from lidar
             sensor_msgs::PointCloud2 pclmsg;
             pcl::toROSMsg(motionComputer.invisibleCloud, pclmsg);
-            pclmsg.header.frame_id = "bmp";
+            pclmsg.header.frame_id = "amp";
             pubCloudInvisible.publish(pclmsg);
         }
 

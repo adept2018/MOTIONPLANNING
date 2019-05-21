@@ -8,11 +8,11 @@
     <arg name="run_camera" value="$(arg run_camera)" />
   </include>
 
-  <node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen">
-  </node>
+  <!-- node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen">
+  </node -->
 
-  <node name="rplidarNodeClient" pkg="rplidar_ros" type="rplidarNodeClient" output="screen">
-  </node>
+  <!-- node name="rplidarNodeClient" pkg="rplidar_ros" type="rplidarNodeClient" output="screen">
+  </node -->
 
   <node name="amp" pkg="advanced_motion_planner" type="amp" output="screen">
   </node>
