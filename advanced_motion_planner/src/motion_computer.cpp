@@ -32,7 +32,10 @@ void MotionComputer::imageDepthCallback(const sensor_msgs::Image::ConstPtr& msg)
 MotionComputer::MotionComputer(ros::NodeHandle &nh) {
     // scan_sub = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
     //scan_sub = nh.subscribe("/odom_zed", 10, &MotionComputer::chatterCallback, this);
-      scan_sub = nh.subscribe("/depth/depth_registered", 10, &MotionComputer::imageDepthCallback, this);
+      ROS_INFO("HELLO");
+      scan_sub = nh.subscribe("/zed/zed_node/depth/depth_registered", 10, &MotionComputer::imageDepthCallback, this);
+      ROS_INFO("HELOO");
+      
 }
 
 void MotionComputer::scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan) {
