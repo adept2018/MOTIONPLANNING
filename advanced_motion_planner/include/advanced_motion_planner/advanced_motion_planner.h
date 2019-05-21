@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ADVANCED_MOTION_PLANNER_H
+#define ADVANCED_MOTION_PLANNER_H
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -16,3 +17,5 @@ ros::Publisher pubCloudInvisible;
 ros::Publisher pubPose;
 ros::Publisher pubDirection;
 ros::Publisher pubAck;
+
+#endif //ADVANCED_MOTION_PLANNER_H

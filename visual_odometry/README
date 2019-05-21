@@ -1,0 +1,24 @@
+http://wiki.ros.org/zed-ros-wrapper
+ 
+ssh nvidia@<ipAdress>
+password: nvidia
+export DISPLAY=:0 #to take over dispaly in SSH
+ 
+
+roslaunch zed_wrapper zed.launch
+rosrun rviz rviz # run in a new termianl
+ 
+
+--To visualize the odometry in rviz, select the Add button, and select the odom topic under the By topic tab.
+ 
+Important: By default rviz is badly displaying the odometry, be sure to set it
+up correctly by opening the newly created Odometry object in the left list, and
+by setting Position tolerance and Angle Tolerance to 0, and Keep
+ 
+
+To dipalys the odometry values run the following command:
+rostopic echo /zed/odom 
+ 
+list all the active topics:
+ 
+rostopic list
