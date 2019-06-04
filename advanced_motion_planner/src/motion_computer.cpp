@@ -138,7 +138,8 @@ pcl::PointXYZ MotionComputer::getLargestRectangularDirection(const int n, const 
 
           ++counter;
 
-          if(!areAnyPointsInsideRectangle(n, r_i, a_i, w_i)) {
+          //if(!areAnyPointsInsideRectangle(n, r_i, a_i, w_i)) {
+          if(!tooManyPointsInsideRectangle(n, r_i, a_i, w_i)) {
             // if no points belong to then memorize that direction and max dist
             // we choose direction by the longest available path
             if(r_i >= r_best) {
@@ -263,6 +264,46 @@ bool MotionComputer::areAnyPointsInsideRectangle(const int n, const float r_i, c
   }
 
   return isAnyInside;
+}
+
+bool MotionComputer::tooManyPointsInsideRectangle(const int n, const float r_i, const float a_i, const float w_i) {
+  bool tooManyInside = false;
+  int pointsFound = countPointsInsideRectangle(n, r_i, a_i, w_i);
+
+  tooManyInside = (pointsFound <= MAX_ALLOWED_POINTS) ? false : true;
+
+  return tooManyInside;
+}
+
+int MotionComputer::countPointsInsideRectangle(const int n, const float r_i, const float a_i, const float w_i) {
+  int countedInside = 0;
+  pcl::PointXY p, A, B, C, D;
+
+  // construct 4 rectangle corners
+  buildRectangle(A, B, C, D, r_i, a_i, w_i);
+
+  // loop through all visible points
+  for (int i = 0; i < n; i++) {
+      p.x = visibleCloud.points[i].x;
+      p.y = visibleCloud.points[i].y;
+      // determine if no any points reside inside the rectangle
+      if(AMP_utils::isInsideRectangle(p, A, B, C, D)) {
+        ++countedInside;
+        #ifdef DEBUG2
+          // print point inside the reactangle
+          float rr, aa;
+          AMP_utils::PointXY2polar(rr, aa, p);
+          std::cout << "Pnt xyra:\t" << p.x << "\t" << p.y << "\t" << \
+          rr << "\t" << RAD2DEG(aa) << std::endl;
+        #endif
+        //break;
+      } else {
+        // no points inside!!!
+        // this is for debug or statistics only
+      }
+  }
+
+  return countedInside;
 }
 
 // build rectangle for the possible motion path in the direction of polar angle a

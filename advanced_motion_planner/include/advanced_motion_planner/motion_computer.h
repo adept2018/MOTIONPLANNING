@@ -48,6 +48,8 @@ public:
     void buildRectangle(pcl::PointXY &A, pcl::PointXY &B, pcl::PointXY &C, pcl::PointXY &D,
       const float r, const float a, const float w);
     bool areAnyPointsInsideRectangle(const int n, const float r_i, const float a_i, const float w_i);
+    bool tooManyPointsInsideRectangle(const int n, const float r_i, const float a_i, const float w_i);
+    int countPointsInsideRectangle(const int n, const float r_i, const float a_i, const float w_i);
     void initBestPathsCacher();
     void updateBestPathsCacher(const float r, const float a, const float w);
     bool findStraightestPathFromPathsCacher(float &r, float &a, float &w);

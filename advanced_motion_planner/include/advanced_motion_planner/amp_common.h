@@ -72,13 +72,14 @@ const std::string VESC_NAME = "vesc/high_level/ackermann_cmd_mux/input/default";
 // LIDAR data filtering (for visibleCloud) withing following intervals:
 #define   max_range           2.5f
 //#define   min_range           0.10f // tested OK on 2019-04-23
-#define   min_range           0.05f
+#define   min_range           0.10f
 //#define   angle_range         DEG2RAD(28.6f)  // default in BMP
 #define   angle_range         DEG2RAD(90.0f)    // tested in car
 // filtering parameters for moving back (back off):
 #define   max_range_Back      0.70f
 #define   min_range_Back      0.25f
 #define   angle_range_Back    DEG2RAD(45.0f)
+#define   MAX_ALLOWED_POINTS  3
 
 // safe width & corresponding half angle width where car can go through within max_range
 #define   carWidth_m          0.33f
