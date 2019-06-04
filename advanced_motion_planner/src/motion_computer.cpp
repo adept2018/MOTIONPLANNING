@@ -2,7 +2,7 @@
 
 #define PI atan(1)*4;
 #define BUCKET_COUNT 16
-#define PRINT_DEBUG false
+#define PRINT_DEBUG true
 
 void MotionComputer::imageDepthCallback(const sensor_msgs::Image::ConstPtr& msg)
 {
@@ -21,24 +21,24 @@ void MotionComputer::imageDepthCallback(const sensor_msgs::Image::ConstPtr& msg)
 	for(int i = start_y; i < end_y; i++)
 	{
 		int vec_index = (i%msg->width) / bucket_width;
-        if(depth[i] > 0.2 && depth[i]< 5){
+        if(depth[i] >= 0.35 && depth[i]< 5){
             /* ROS_INFO("HASSAAAAAN, %d", vec_index); */
             depth_vec[vec_index] += depth[i];
             n_point[vec_index]++;
             /* depth_vec[vec_index] /= number_of_points; */
         }
-        else if(depth[i]< 0.2){ 
+        else if(depth[i]< 0.35){ 
             /* ROS_INFO("HASSAAAAAN, %f", depth[i]); */
             n_point[vec_index]++;
         } 
-        else{
+        else if (depth[i] >= 5){
             depth_vec[vec_index] += 5;
             n_point[vec_index]++;
             /* ROS_INFO("FARHAAAD, %f", depth[i]); */
         } 
 	}
 
-    ROS_INFO("ADRIAAAANNNNN, %f", number_of_points);
+    /* ROS_INFO("ADRIAAAANNNNN, %f", number_of_points); */
 	for(int i = 0; i < depth_vec.size(); i++){
         if(PRINT_DEBUG)
             ROS_INFO("Point[%d] = %f", i, depth_vec[i] / n_point[i]);
@@ -110,8 +110,9 @@ bool MotionComputer::computeMotion() {
         /*         theta_w += -offset; */
         /*     } */
 
-            float theta_w = 35 + 110.0/16.0*max_dist_idx -90;
-            ROS_INFO("ANGLE %f", theta_w);
+            float theta_w = 35 + 110.0/32.0 + 110.0/16.0*max_dist_idx -90;
+            /* ROS_INFO("ANGLE %f", theta_w); */
+            /* printf("\rANGLE %f", theta_w); */
             direction.push_back(max_dist * cos(theta_w));
             direction.push_back(max_dist * sin(theta_w));
             direction.push_back(theta_w);

@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
             /*     steeringAngle = -0.34; */
             /* } */
             ROS_INFO("ANGLE2 %f", steeringAngle);
+            /* printf("\rANGLE %f,in grad  %f", motionComputer.direction[2], steeringAngle); */
 
         if (!motionComputer.visibleCloud.empty()) {
 
