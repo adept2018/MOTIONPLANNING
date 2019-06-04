@@ -2,7 +2,6 @@
 
 #define PI atan(1)*4;
 #define BUCKET_COUNT 16
-#define PRINT_DEBUG true
 
 void MotionComputer::imageDepthCallback(const sensor_msgs::Image::ConstPtr& msg)
 {
@@ -40,8 +39,7 @@ void MotionComputer::imageDepthCallback(const sensor_msgs::Image::ConstPtr& msg)
 
     /* ROS_INFO("ADRIAAAANNNNN, %f", number_of_points); */
 	for(int i = 0; i < depth_vec.size(); i++){
-        if(PRINT_DEBUG)
-            ROS_INFO("Point[%d] = %f", i, depth_vec[i] / n_point[i]);
+        /* ROS_INFO("Point[%d] = %f", i, depth_vec[i] / n_point[i]); */
         depth_vec[i]/=n_point[i];
     }
     depth_queue.push(depth_vec);
@@ -77,12 +75,13 @@ bool MotionComputer::computeMotion() {
         /* invisibleCloud = laserScanToPointCloud.scanToCloud(scan, false); */
         float max_dist = 0;
         int max_dist_idx = 0;
-        for(int i = 0; i < depthCloud.size(); i++){
+        for(int i = 3; i < depthCloud.size() - 3; i++){
             if(depthCloud[i] > max_dist){
                 max_dist = depthCloud[i];
                 max_dist_idx = i;
             }
         }
+        /* ROS_INFO("max index %d", max_dist_idx); */
 
         /* int numberOfPoints = visibleCloud.size(); */
 
@@ -115,8 +114,8 @@ bool MotionComputer::computeMotion() {
             /* printf("\rANGLE %f", theta_w); */
             direction.push_back(max_dist * cos(theta_w));
             direction.push_back(max_dist * sin(theta_w));
-            direction.push_back(theta_w);
-        /* } */
-    }
+            direction.push_back(-theta_w);
+            direction.push_back(max_dist);
+        /* } */ }
     return true;
 }

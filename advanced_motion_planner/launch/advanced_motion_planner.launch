@@ -16,8 +16,6 @@
 
   <node name="amp" pkg="advanced_motion_planner" type="amp" output="screen">
   </node>
-
-  <include file="$(find zed_wrapper)/launch/zed.launch">
-  </include>
+  <include file="$(find zed_wrapper)/launch/zed.launch"/>
 
 </launch>

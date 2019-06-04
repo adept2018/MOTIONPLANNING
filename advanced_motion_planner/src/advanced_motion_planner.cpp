@@ -25,6 +25,7 @@ int main(int argc, char** argv) {
         }
 
         float steeringAngle = 0;
+        float speed = 0.3;
         if(motionComputer.direction.size() == 0) continue;
             steeringAngle = motionComputer.direction[2]*0.0174532;
             /* if (steeringAngle > 0.34) { */
@@ -33,21 +34,26 @@ int main(int argc, char** argv) {
             /* if (steeringAngle < -0.34) { */
             /*     steeringAngle = -0.34; */
             /* } */
-            ROS_INFO("ANGLE2 %f", steeringAngle);
-            /* printf("\rANGLE %f,in grad  %f", motionComputer.direction[2], steeringAngle); */
+            if(motionComputer.direction[3] < 0.35)
+            {
+                speed = -0.3;
+                steeringAngle *= -1;
+            }
+            /* ROS_INFO("ANGLE2 %f", steeringAngle); */
+            /* ROS_INFO("SPEED %f", speed); /1* printf("\rANGLE %f,in grad  %f", motionComputer.direction[2], steeringAngle); *1/ */
 
         if (!motionComputer.visibleCloud.empty()) {
 
             // Computed angle
             steeringAngle = motionComputer.direction[2];
-            ROS_INFO("ANGLE %f", steeringAngle);
+            /* ROS_INFO("ANGLE %f", steeringAngle); */
             if (steeringAngle > 0.34) {
                 steeringAngle = 0.34;
             }
             if (steeringAngle < -0.34) {
                 steeringAngle = -0.34;
             }
-            ROS_INFO("ANGLE2 %f", steeringAngle);
+            /* ROS_INFO("ANGLE2 %f", steeringAngle); */
 
             // Computed direction
             geometry_msgs::PoseStamped outputMsg;
@@ -99,7 +105,7 @@ int main(int argc, char** argv) {
         // 0 or computed angle from motionComputer
         ackMsg.drive.steering_angle = steeringAngle;
         // Use fixed speed (m/s)
-        ackMsg.drive.speed = 0.5;
+        ackMsg.drive.speed = speed;
 
         pubAck.publish(ackMsg);
 
