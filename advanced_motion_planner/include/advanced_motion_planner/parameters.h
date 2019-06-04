@@ -6,26 +6,33 @@
 
 class Parameters {
 private:
-    ros::NodeHandle *nodeHandle;
+    ros::NodeHandle* nodeHandle;
     bool isNodeHandleSet;
-    float pi = atanf(1.0f) * 4.0f;
+    // float pi = atanf(1.0f) * 4.0f;
 
 public:
     float lidar_offset;
+    float min_scan_range;
     float max_scan_range;
     float min_speed;
     float max_speed;
     float speed_incr;
-    uint8_t follow_wall_x;   // left = 0x0, right = 0x1
+    uint8_t wall_direction;   // left = 0x0, right = 0x1
     float min_wall_distance;
-    float min_observation_percentage;
-    float max_observation_percentage;
+    float min_observation;
+    float max_observation;
+    float carrot_distance;
+    int8_t min_line_x;
+    int8_t max_line_x;
+    float K_p;
+    float K_i;
+    float K_d;
 
     Parameters() {
         isNodeHandleSet = false;
     }
 
-    void setNodeHandle(ros::NodeHandle *nh) {
+    void setNodeHandle(ros::NodeHandle* nh) {
         nodeHandle = nh;
         isNodeHandleSet = true;
     }
@@ -35,27 +42,56 @@ public:
             return;
         }
 
-        nodeHandle->param<float>("/advanced_motion_planner/lidar_offset", lidar_offset, 0.0f);
+        nodeHandle->param<float>("/advanced_motion_planner/lidar_offset", lidar_offset, 0.00f);
+        nodeHandle->param<float>("/advanced_motion_planner/min_scan_range", min_scan_range, 0.05f);
         nodeHandle->param<float>("/advanced_motion_planner/max_scan_range", max_scan_range, 2.50f);
         nodeHandle->param<float>("/advanced_motion_planner/min_speed", min_speed, 0.30f);
         nodeHandle->param<float>("/advanced_motion_planner/max_speed", max_speed, 0.50f);
         nodeHandle->param<float>("/advanced_motion_planner/speed_incr", speed_incr, 0.05f);
-        nodeHandle->param<uint8_t>("/advanced_motion_planner/follow_wall_x", follow_wall_x, 1);   // right wall by default
-        nodeHandle->param<float>("/advanced_motion_planner/min_wall_distance", min_wall_distance, 0.10f);
-        nodeHandle->param<float>("/advanced_motion_planner/min_observation_angle", min_observation_percentage, 0.25f);
-        nodeHandle->param<float>("/advanced_motion_planner/man_observation_angle", max_observation_percentage, 0.75f);
+        nodeHandle->param<uint8_t>("/advanced_motion_planner/wall_direction", wall_direction, 1);  // right wall by default
+        nodeHandle->param<float>("/advanced_motion_planner/wall_distance", wall_distance, 0.10f);
+        nodeHandle->param<float>("/advanced_motion_planner/min_observation", min_observation, 0.25f);
+        nodeHandle->param<float>("/advanced_motion_planner/max_observation", max_observation, 0.75f);
+        nodeHandle->param<float>("/advanced_motion_planner/carrot_distance", carrot_distance, 1.00f);
+        nodeHandle->param<int8_t>("/advanced_motion_planner/min_line_x"), min_line_x, -10);
+        nodeHandle->param<int8_t>("/advanced_motion_planner/max_line_x"), max_line_x, 10);
+        nodeHandle->param<float>("/advanced_motion_planner/K_p", K_p, 1.00f);
+        nodeHandle->param<float>("/advanced_motion_planner/K_i", K_i, 0.00f);
+        nodeHandle->param<float>("/advanced_motion_planner/K_d", K_d, 0.00f);
 
-        min_observation_percentage = min_observation_percentage < 0.0f : 0.0f ? min_observation_percentage;
-        min_observation_percentage =  > 1.0f : 1.0f ? min_observation_percentage;
-        max_observation_percentage = max_observation_percentage < 0.0f : 0.0f ? max_observation_percentage;
-        max_observation_percentage = max_observation_percentage > 1.0f : 1.0f ? max_observation_percentage;
+        min_observation = min_observation < 0.0f : 0.0f ? min_observation;
+        min_observation = min_observation > 1.0f : 1.0f ? min_observation;
+        max_observation = max_observation < 0.0f : 0.0f ? max_observation;
+        max_observation = max_observation > 1.0f : 1.0f ? max_observation;
 
-        if (min_observation_percentage >= max_observation_percentage) {
-            std::cerr << "WARNING: min_observation_percentage (" << min_observation_percentage << ") is equal to or greater than max_observation_percentage (" << max_observation_percentage << ")" << std::endl;
-            std::cerr << "Resetting min_observation_percentage and max_observation_percentage to standard values..." << std::endl;
-            min_observation_percentage = 0.25f;
-            max_observation_percentage = 0.75f;
+        if (min_observation >= max_observation) {
+            std::cerr << "WARNING: min_observation (" << min_observation << ") is equal to or greater than max_observation (" << max_observation << ")" << std::endl;
+            std::cerr << "Resetting min_observation and max_observation to standard values..." << std::endl;
+            min_observation = 0.25f;
+            max_observation = 0.75f;
         }
+
+        if (wall_direction == 0) { //TODO
+            min_observation = 1 - min_observation;
+            max_observation = 1 - max_observation;
+        }
+
+        std::cout << "lidar_offset: " << lidar_offset << std::endl;
+        std::cout << "min_scan_range: " << min_scan_range << std::endl;
+        std::cout << "max_scan_range: " << max_scan_range << std::endl;
+        std::cout << "min_speed: " << min_speed << std::endl;
+        std::cout << "max_speed: " << max_speed << std::endl;
+        std::cout << "speed_incr: " << speed_incr << std::endl;
+        std::cout << "wall_direction: " << wall_direction << std::endl;
+        std::cout << "wall_distance: " << wall_distance << std::endl;
+        std::cout << "min_observation: " << min_observation << std::endl;
+        std::cout << "max_observation: " << max_observation << std::endl;
+        std::cout << "carrot_distance: " << carrot_distance << std::endl;
+        std::cout << "min_line_x: " << min_line_x << std::endl;
+        std::cout << "max_line_x: " << max_line_x << std::endl;
+        std::cout << "K_p: " << K_p << std::endl;
+        std::cout << "K_i: " << K_i << std::endl;
+        std::cout << "K_d: " << K_d << std::endl;
     }
 };
 

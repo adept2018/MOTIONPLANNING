@@ -5,8 +5,17 @@
 /advanced_motion_planner/max_speed: 1.00
 /advanced_motion_planner/speed_incr: 0.01
 
-/advanced_motion_planner/follow_wall_x: 1
-/advanced_motion_planner/min_wall_distance: 0.1
+/advanced_motion_planner/wall_direction: 1             # left = 0x0, right = 0x1
+/advanced_motion_planner/wall_distance: 0.1
 
-/advanced_motion_planner/min_observation_angle: 0.40
-/advanced/motion/planner/max_observation_angle: 0.75
+/advanced_motion_planner/min_observation: 0.40
+/advanced_motion_planner/max_observation: 0.75
+
+/advanced_motion_planner/carrot_distance: 1.00
+
+/advanced_motion_planner/min_line_x: -10
+/advanced_motion_planner/max_line_x: 10
+
+/advanced_motion_planner/K_p: 1.0
+/advanced_motion_planner/K_i: 0.0
+/advanced_motion_planner/K_d: 0.0

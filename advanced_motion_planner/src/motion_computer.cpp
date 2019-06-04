@@ -11,13 +11,24 @@ void MotionComputer::scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan) 
 
 bool MotionComputer::computeMotion() {
     parameters.update();
-    
+
     while (!m_scan_queue.empty()) {
         sensor_msgs::LaserScan scan = m_scan_queue.front();
         m_scan_queue.pop();
 
-        cloud.clear();
-        cloud = laserScanToPointCloud.scanToCloud(scan);
+        map.clear();
+        observation_points.clear();
+        wall_outline.clear();
+
+        // Create map
+        map = laserScanToPointCloud.scanToCloud(scan, 0, scan.ranges.size(), parameters.min_range, parameters.max_range, parameters.lidar_offset, true);
+
+        // Map out observation points
+        uint16_t min_observation_point = static_cast<uint16_t>(cloud.size() * parameters.min_observation);
+        uint16_t max_observation_point = static_cast<uint16_t>(cloud.size() * parameters.max_observation);
+        observation_point = laserScanToPointCloud.scanToCloud(scan, min_observation_point, max_observation_point, parameters.min_range, parameters.max_range, parameters.lidar_offset, false);
+
+
 
         if (!wallFollower.followTheWall) {
             std::cerr << "Failed to follow the wall - driving forward with reduced speed" << std::endl;
@@ -50,6 +61,17 @@ bool MotionComputer::computeMotion() {
         else {
             theta_w += -offset;
         }
+
+
+        pcl::PointCloud<pcl::PointXYZ> line;
+        pcl::PointXYZ point;
+        for (uint16_t i = parameters.min_line_x; i < parameters.max_line_x ++i) {
+            point.x = i;
+            point.y = m_a * i + m_b;
+            point.z = 0;
+            line.push_back(point);
+        }
+
 
         direction.x = cosf(theta_w);
         direction.y = sinf(theta_w);

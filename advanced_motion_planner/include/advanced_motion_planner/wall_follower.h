@@ -12,6 +12,7 @@
 class WallFollower {
 private:
     Parameters parameters;
+    void linearLeastSquares(const uint16_t& min, const uint16_t& max, const pcl::PointCloud<pcl::PointXYZ>& cloud);
 
 public:
     WallFollower() {}
@@ -19,6 +20,9 @@ public:
 
     AckermannMessage ackMsg;
     Direction direction;
+
+    float m_a;
+    float m_b;
 };
 
 #endif //WALL_FOLLOWER_H

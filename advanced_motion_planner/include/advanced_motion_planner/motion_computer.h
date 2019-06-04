@@ -34,7 +34,9 @@ public:
 
     AckermannMsg ackMsg;
     Direction direction;
-    pcl::PointCloud<pcl::PointXYZ> cloud;
+    pcl::PointCloud<pcl::PointXYZ> map;
+    pcl::PointCloud<pcl::PointXYZ> observed_points;
+    pcl::PointCloud<pcl::PointXYZ> wall_outline;
 };
 
 #endif //MOTION_COMPUTER_H
