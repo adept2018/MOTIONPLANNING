@@ -7,9 +7,9 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     MotionComputer motionComputer(nh);
 
-    pubPose = nh.advertise<geometry_msgs::PoseStamped>("bmp/pose", 10);
-    pubCloudVisible = nh.advertise<sensor_msgs::PointCloud2>("bmp/cloud/visible", 10);
-    pubDirection = nh.advertise<geometry_msgs::PoseStamped>("bmp/direction", 10);
+    pubPose = nh.advertise<geometry_msgs::PoseStamped>("amp/charis_pose", 10);
+    pubCloudVisible = nh.advertise<sensor_msgs::PointCloud2>("amp/cloud/charis_visible", 10);
+    pubDirection = nh.advertise<geometry_msgs::PoseStamped>("amp/charis_direction", 10);
     pubAck = nh.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
 
     // frequency of ros i.e. the while loop

@@ -37,7 +37,7 @@ bool MotionComputer::computeMotion() {
         uint8_t zoneWithMaxClearance = 0;
         uint8_t currentZoneWithMaxClearance = 0;
 
-        for(const auto& point: mCloud) {
+        for(auto& point: mCloud) {
 
             if (point.x >= mSafeRadius) {
                 if (!activeZone) {
@@ -54,8 +54,9 @@ bool MotionComputer::computeMotion() {
                 const float y1 = currentZone.PointA.x * sin(currentZone.PointA.y);
                 const float x2 = point.x * cos(point.y);
                 const float y2 = point.x * sin(point.y);
+
                 // check if the car can fit between the points of the zone
-                if(pow(x1-x2,2.0f) + pow(y1-y2,2.0f) > 0.16f){
+                if(pow(x1-x2, 2.0f) + pow(y1-y2, 2.0f) > 0.16f){
                     currentZone.PointB = math::vec2(point.x, point.y);
                     mZones.emplace_back(currentZone);
                     zoneWithMaxClearance = currentZoneWithMaxClearance;
@@ -66,6 +67,11 @@ bool MotionComputer::computeMotion() {
                 // }
 
             }
+
+            const float x = point.x * cos(point.y);
+            const float y = point.x * sin(point.y);
+            point.x = x;
+            point.y = y;
         }
 
         //if we still have an active zone then we close it with the last element
@@ -77,11 +83,15 @@ bool MotionComputer::computeMotion() {
             const float y1 = currentZone.PointA.x * sin(currentZone.PointA.y);
             const float x2 = point.x * cos(point.y);
             const float y2 = point.x * sin(point.y);
+
             // check if the car can fit between the points of the zone
             if(pow(x1 - x2, 2.0f) + pow(y1 - y2, 2.0f) > 0.16f){
                 currentZone.PointB = math::vec2(point.x, point.y);
                 mZones.emplace_back(currentZone);
                 zoneWithMaxClearance = currentZoneWithMaxClearance;
+            }
+            else{
+                //what?
             }
             activeZone = false;
         }
