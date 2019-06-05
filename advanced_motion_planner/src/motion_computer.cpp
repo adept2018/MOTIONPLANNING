@@ -5,6 +5,7 @@
   * 2019-03-20  Changed from BMP by Alexander Konovalenko
   * 2019-04-23  Successfully tested on the car. Lightning in the room
   *             can negatively affect the LIDAR!!!
+  * 2019-05-05  Some performance improvements are reversed back in calcLargestRectangularDirection
   *
   **/
 
@@ -48,9 +49,9 @@ bool MotionComputer::computeMotion() {
             //-------------------------------------------------
             // METHOD-2 analyze what is the lagest rectangular path available at the front
             //-------------------------------------------------
-            pcl::PointXYZ raw = getLargestRectangularDirection(numberOfPoints, laserScanToPointCloud);
-            r = raw.x;
-            theta = raw.y;
+            calcLargestRectangularDirection(numberOfPoints, laserScanToPointCloud);
+            r = RAW.x;
+            theta = RAW.y;
 
 
             // some debug output:
@@ -104,10 +105,9 @@ float MotionComputer::getWeightedAverageDirection(const int n) {
   return theta_w;
 }
 
-pcl::PointXYZ MotionComputer::getLargestRectangularDirection(const int n, const LaserScanToPointCloud &ls) {
+void MotionComputer::calcLargestRectangularDirection(const int n, const LaserScanToPointCloud &ls) {
   register float a_best = 0.0f, r_best = 0.0f, w_best = 0.0f, a_i, r_i, w_i;
   uint counter = 0;
-  pcl::PointXYZ raw;
 
   if(n > 0) {
     // there are data to check
@@ -117,17 +117,17 @@ pcl::PointXYZ MotionComputer::getLargestRectangularDirection(const int n, const 
     // loop through path widths:
     for(w_i = minPathWidth; w_i <= maxPathWidth; w_i += pathWidthPitch) {
 
-      /*float amin = -angle_range + pathsAngPitchHalf;
-      float amax = angle_range - pathsAngPitchHalf;*/
+      float amin = -angle_range + pathsAngPitchHalf;
+      float amax = angle_range - pathsAngPitchHalf;
       // optimize for performance:
-      float amin = ls.statVis.Aminmax.x + pathsAngPitchHalf;
-      float amax = ls.statVis.Aminmax.y - pathsAngPitchHalf;
+      /*float amin = ls.statVis.Aminmax.x + pathsAngPitchHalf;
+      float amax = ls.statVis.Aminmax.y - pathsAngPitchHalf; */
       // loop through all paths (angles):
       for(a_i = amin; a_i <= amax; a_i += pathsAngPitch) {
 
         // loop: increment distance (far end):
-        for(r_i = (min_range + pathsDistPitch); r_i < max_range; r_i += pathsDistPitch) {
-        //for(r_i = (min_range + pathsDistPitch); r_i < ls.statVis.Rminmax.y; r_i += pathsDistPitch) {
+        for(minPathRange; r_i < MAX_FRONT_Range; r_i += pathsDistPitch) {
+        //for(r_i = (MIN_FRONT_Range + pathsDistPitch); r_i < ls.statVis.Rminmax.y; r_i += pathsDistPitch) {
 
           // debug:
           #ifdef DEBUG2
@@ -141,15 +141,26 @@ pcl::PointXYZ MotionComputer::getLargestRectangularDirection(const int n, const 
           //if(!areAnyPointsInsideRectangle(n, r_i, a_i, w_i)) {
           if(!tooManyPointsInsideRectangle(n, r_i, a_i, w_i)) {
             // if no points belong to then memorize that direction and max dist
-            // we choose direction by the longest available path
-            if(r_i >= r_best) {
-              r_best = r_i;
-              a_best = a_i;
-              w_best = w_i;
-
+            // we choose direction by the longest/widest/strightest available path
+            bool longest = (r_i >= r_best);
+            bool widest = (w_i >= w_best);
+            bool strightest = (a_i <= a_best);
+            bool maxarea = ((r_i*w_i) >= (r_best*w_best));
+            //if(longest && widest && strightest) {
+            if(maxarea && strightest) {
+              // ideal path
+              r_best = r_i; a_best = a_i; w_best = w_i;
               #ifdef DEBUG1
-                std::cout << counter << "th new best r&a:\t" << r_best << "\t" << RAD2DEG(a_best) << std::endl;
+                std::cout << counter << "th new best r&w&a:\t" << r_best << "\t" << w << "\t" << RAD2DEG(a_best) << std::endl;
               #endif
+            } else if(longest && widest ) {
+              // less ideal path, we need to turn
+              r_best = r_i; a_best = a_i; w_best = w_i;
+              #ifdef DEBUG1
+                std::cout << counter << "th new best r&w&a:\t" << r_best << "\t" << w << "\t" << RAD2DEG(a_best) << std::endl;
+              #endif
+            } else {
+              // the worse case
             }
           } else {
             // there are points inside this path,
@@ -171,10 +182,9 @@ pcl::PointXYZ MotionComputer::getLargestRectangularDirection(const int n, const 
   }
 
   // return the best direction parameters
-  raw.x = r_best;
-  raw.y = a_best;
-  raw.z = w_best;
-  return raw;
+  RAW.x = r_best;
+  RAW.y = a_best;
+  RAW.z = w_best;
 }
 
 inline void  MotionComputer::initBestPathsCacher() {
@@ -201,7 +211,7 @@ inline void MotionComputer::updateBestPathsCacher(const float r, const float a, 
   }
 }
 
-// if not faound then false is returned
+// if not found then false is returned
 // this function overrides inputs!
 inline bool MotionComputer::findStraightestPathFromPathsCacher(float &r, float &a, float &w) {
   bool res = false;
@@ -307,7 +317,7 @@ int MotionComputer::countPointsInsideRectangle(const int n, const float r_i, con
 }
 
 // build rectangle for the possible motion path in the direction of polar angle a
-// Width is carWidth_m, the length is (min_range + r)
+// Width is carWidth_m, the length is (MIN_FRONT_Range + r)
 //
 //  ^
 //  |
@@ -334,7 +344,7 @@ void MotionComputer::buildRectangle(pcl::PointXY &A, pcl::PointXY &B, pcl::Point
     Ba = a + tmp_far_a;
     Br = Ar;
     Ca = a + RminHalfWidthAngle;
-    Cr = sqrtf(tmp_cw2 + min_range * min_range);
+    Cr = sqrtf(tmp_cw2 + minPathRange * minPathRange);
     Da = a - RminHalfWidthAngle;
     Dr = Cr;
 

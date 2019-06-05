@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
             return -1;
         }
 
-        float steeringAngle = 0.0f, dist = 0.0f;
+        float steeringAngle = 0.0f;
         geometry_msgs::PoseStamped outputMsg;
 
         if (!motionComputer.visibleCloud.empty()) {
@@ -53,8 +53,6 @@ int main(int argc, char** argv) {
 
             // Obtained angle and range (distance) from motion computer
             steeringAngle = motionComputer.direction[2];
-            dist = sqrt(motionComputer.direction[0] * motionComputer.direction[0] + \
-              motionComputer.direction[1] * motionComputer.direction[1]);
 
             if (steeringAngle > SteeringAngleLimit) {
                 steeringAngle = SteeringAngleLimit;
@@ -68,7 +66,7 @@ int main(int argc, char** argv) {
         // Specify speed (m/s), back-off is implemented, although direction is the same
         //ackMsg.drive.speed = DRIVE_SPEED_DEFAULT;
         // the following did not work perhaps due to light!!!
-        if(dist > NO_GO_MIN_DIST) {
+        if(motionComputer.RAW.x > NO_GO_MIN_DIST) {
           // drive forward
           ackMsg.drive.speed = DRIVE_SPEED_DEFAULT;
           ackMsg.drive.steering_angle = steeringAngle;
@@ -85,12 +83,14 @@ int main(int argc, char** argv) {
             backward = true;
             // drive certain amount of distance or time
             ros::Duration(fabsf(BACK_DISTANCE / BACK_SPEED_DEFAULT)).sleep();
+            std::cout << "\n >>>>>>>>>>>>>>>>>>> BACK OFF!!!";
           #else
             // no backward motion is enabled, but stop the car!
             ackMsg.drive.speed = 0.0f;
             ackMsg.drive.steering_angle = steeringAngle;
             pubAck.publish(ackMsg);
             backward = false;
+            std::cout << "\n >>>>>>>>>>>>>>>>>>> STOP THE CAR!!!";
           #endif
         }
 
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
             outputMsg.pose.position.z = 0.0f;
 
             // this is sugested direction to turn (wheels steering limit is applied)
-            pcl::PointXY xy = AMP_utils::polar2PointXY(dist, steeringAngle);
+            pcl::PointXY xy = AMP_utils::polar2PointXY(motionComputer.RAW.x, steeringAngle);
             outputMsg.pose.orientation.x = xy.x * ((backward) ? -1.0f : 1.0f);
             outputMsg.pose.orientation.y = xy.y * ((backward) ? -1.0f : 1.0f);
             outputMsg.pose.orientation.z = 0.0f;

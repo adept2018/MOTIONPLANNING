@@ -34,6 +34,8 @@ private:
 
 public:
     std::vector<float> direction;
+    // the following is the best R, Angle and Width.
+    pcl::PointXYZ RAW;
     pcl::PointCloud<pcl::PointXYZ> visibleCloud;
     pcl::PointCloud<pcl::PointXYZ> invisibleCloud;
     #ifdef FUNCTIONAL_DEBUG_INFO
@@ -44,7 +46,7 @@ public:
     bool computeMotion();
     // implemented methods for determination of motion direction:
     float getWeightedAverageDirection(const int NoOfPoints);
-    pcl::PointXYZ getLargestRectangularDirection(const int NoOfPoints, const LaserScanToPointCloud &ls);
+    void calcLargestRectangularDirection(const int NoOfPoints, const LaserScanToPointCloud &ls);
     void buildRectangle(pcl::PointXY &A, pcl::PointXY &B, pcl::PointXY &C, pcl::PointXY &D,
       const float r, const float a, const float w);
     bool areAnyPointsInsideRectangle(const int n, const float r_i, const float a_i, const float w_i);

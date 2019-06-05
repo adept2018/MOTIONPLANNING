@@ -21,11 +21,11 @@ inline bool LaserScanToPointCloud::filterGenerel(const float range, const float 
 
 
 bool LaserScanToPointCloud::filterVisible(const float range, const float angle) {
-  return filterGenerel(range, angle, min_range, max_range, -angle_range, angle_range);
+  return filterGenerel(range, angle, MIN_FRONT_Range, MAX_FRONT_Range, -angle_range, angle_range);
 }
 
 bool LaserScanToPointCloud::filterBackOff(const float range, const float angle) {
-  return filterGenerel(range, angle, min_range_Back, max_range_Back, -angle_range_Back, angle_range_Back);
+  return filterGenerel(range, angle, MIN_BACK_Range, MAX_BACK_Range, -angle_range_Back, angle_range_Back);
 }
 
 
