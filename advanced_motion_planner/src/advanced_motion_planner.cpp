@@ -5,6 +5,7 @@
   * 2019-03-20  Ported from BMP by Alexander Konovalenko
   * 2019-04-23  Successfully tested on the car. Lightning in the room
   *             can negatively affect the LIDAR!!!
+  * 2019-06-07  Bug fixes.
   *
   **/
 
@@ -41,24 +42,28 @@ int main(int argc, char** argv) {
         ros::spinOnce();
 
         if (!motionComputer.computeMotion()) {
-            std::cout << "ERROR: Cannot compute motion." << std::endl;
-            return -1;
+            //std::cout << "ERROR: Cannot compute motion." << std::endl;
+            // we should not quit from application!
+            //return -1;
         }
 
         float steeringAngle = 0.0f;
         geometry_msgs::PoseStamped outputMsg;
 
         if (!motionComputer.visibleCloud.empty()) {
-            // prepare vectors and cloud for publications
+          // prepare vectors and cloud for publications
 
-            // Obtained angle and range (distance) from motion computer
-            steeringAngle = motionComputer.direction[2];
+          // Obtained angle and range (distance) from motion computer
+          steeringAngle = motionComputer.direction[2];
 
-            if (steeringAngle > SteeringAngleLimit) {
-                steeringAngle = SteeringAngleLimit;
-            } else if (steeringAngle < -SteeringAngleLimit) {
-                steeringAngle = -SteeringAngleLimit;
-            }
+          if (steeringAngle > SteeringAngleLimit) {
+              steeringAngle = SteeringAngleLimit;
+          } else if (steeringAngle < -SteeringAngleLimit) {
+              steeringAngle = -SteeringAngleLimit;
+          }
+        } else {
+          //there are no data points in visibleCloud
+          //std::cout << "EMPTY visibleCloud!!!" << std::endl;
         }
 
         ackermann_msgs::AckermannDriveStamped ackMsg;
@@ -66,6 +71,7 @@ int main(int argc, char** argv) {
         // Specify speed (m/s), back-off is implemented, although direction is the same
         //ackMsg.drive.speed = DRIVE_SPEED_DEFAULT;
         // the following did not work perhaps due to light!!!
+        //std::cout << "motionComputer.RAW.x: " << motionComputer.RAW.x << std::endl;
         if(motionComputer.RAW.x > NO_GO_MIN_DIST) {
           // drive forward
           ackMsg.drive.speed = DRIVE_SPEED_DEFAULT;
@@ -83,14 +89,15 @@ int main(int argc, char** argv) {
             backward = true;
             // drive certain amount of distance or time
             ros::Duration(fabsf(BACK_DISTANCE / BACK_SPEED_DEFAULT)).sleep();
-            std::cout << "\n >>>>>>>>>>>>>>>>>>> BACK OFF!!!";
+            std::cout << ">>>>>>>>>>>>>>>>>>> BACK OFF!!!" << std::endl;
           #else
             // no backward motion is enabled, but stop the car!
             ackMsg.drive.speed = 0.0f;
             ackMsg.drive.steering_angle = steeringAngle;
             pubAck.publish(ackMsg);
             backward = false;
-            std::cout << "\n >>>>>>>>>>>>>>>>>>> STOP THE CAR!!!";
+            std::cout << ">>>>>>>>>>>>>>>>>>> STOP THE CAR!!!" << std::endl;
+            ros::Duration(1.0f).sleep();
           #endif
         }
 
@@ -120,8 +127,15 @@ int main(int argc, char** argv) {
 
             // this is sugested direction to turn (wheels steering limit is applied)
             pcl::PointXY xy = AMP_utils::polar2PointXY(motionComputer.RAW.x, steeringAngle);
-            outputMsg.pose.orientation.x = xy.x * ((backward) ? -1.0f : 1.0f);
-            outputMsg.pose.orientation.y = xy.y * ((backward) ? -1.0f : 1.0f);
+            //std::cout << "Check steeringAngle: " << RAD2DEG(steeringAngle) << std::endl;
+            if(backward) {
+              outputMsg.pose.orientation.x = -xy.x;
+              outputMsg.pose.orientation.y = -xy.y;
+            } else {
+              outputMsg.pose.orientation.x = xy.x;
+              outputMsg.pose.orientation.y = xy.y;
+            }
+
             outputMsg.pose.orientation.z = 0.0f;
             outputMsg.pose.orientation.w = 0.0f;
 
@@ -143,6 +157,7 @@ int main(int argc, char** argv) {
               pubPathCloud.publish(ppclmsg);
             #endif
         }
+
         // Vector showing forward direction
         geometry_msgs::PoseStamped direction;
         direction.header.frame_id = AMP_NAME;

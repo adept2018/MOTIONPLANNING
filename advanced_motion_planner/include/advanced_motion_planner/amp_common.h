@@ -7,6 +7,7 @@
   * 2019-03-20  Created by Alexander Konovalenko
   * 2019-04-23  Successfully tested on the car. Lightning in the room
   *             can negatively affect the LIDAR!!!
+  * 2019-06-07  Bug fixes.
   *
   **/
 
@@ -25,13 +26,13 @@
 //#define DEBUG2
 // publish and/or print extended data/clouds/...
 #define FUNCTIONAL_DEBUG_INFO
-#define OFFCAR_DEBUG
+//#define OFFCAR_DEBUG
 
 #ifdef FUNCTIONAL_DEBUG_INFO
   #define maxSidePointsInPathCloud 10U
 #endif
 
-#define BACKWARD_MOTION
+//#define BACKWARD_MOTION
 
 // naming constants for the publisher and data/clouds
 const std::string AMP_NAME = "amp";
@@ -70,7 +71,7 @@ const std::string VESC_NAME = "vesc/high_level/ackermann_cmd_mux/input/default";
 #define   SteeringAngleLimit  DEG2RAD(29.4f)
 
 // LIDAR data filtering (for visibleCloud) withing following intervals:
-#define   MAX_FRONT_Range     4.5f
+#define   MAX_FRONT_Range     2.5f
 //#define   MIN_FRONT_Range     0.10f // tested OK on 2019-04-23
 #define   MIN_FRONT_Range     0.15f
 //#define   angle_range         DEG2RAD(28.6f)  // default in BMP
@@ -94,9 +95,9 @@ const std::string VESC_NAME = "vesc/high_level/ackermann_cmd_mux/input/default";
 #define   pathsDistPitch      0.3f   // in m, increments in r for the rectangle path finding
 #define   minPathWidth        (carWidth_m * 1.2f)
 #define   maxPathWidth        (minPathWidth * 5.0f)
-#define   minPathRange        (MIN_FRONT_Range * 0.5f)
-#define   pathWidthPitch      ((maxPathWidth - minPathWidth) / 4.0)
-#define   AREA_TOLERANCE      1.0e-5f
+#define   minPathRange        MIN_FRONT_Range
+#define   pathWidthPitch      (carWidth_m * 0.5)
+#define   AREA_TOLERANCE      1.0e-4f
 #define   BEST_PATHS_LEN      9     // a number of paths to cache
 #define   NO_GO_MIN_DIST      MIN_FRONT_Range  // in m
 
@@ -129,6 +130,7 @@ class AMP_utils {
       const pcl::PointXY &C, const pcl::PointXY &D);
     static bool isInsideRectangle(const pcl::PointXY &p, const pcl::PointXY &A,
       const pcl::PointXY &B, const pcl::PointXY &C, const pcl::PointXY &D);
+    static float distXY(const pcl::PointXY &A, const pcl::PointXY &B);
 
     // additional functions
     #ifdef FUNCTIONAL_DEBUG_INFO

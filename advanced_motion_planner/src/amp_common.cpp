@@ -105,6 +105,11 @@ bool AMP_utils::isInsideRectangle(const pcl::PointXY &P, const pcl::PointXY &A,
 
 #endif
 
+float AMP_utils::distXY(const pcl::PointXY &A, const pcl::PointXY &B) {
+  register float dx = A.x - B.x, dy = A.y - B.y;
+  return sqrtf(dx * dx + dy * dy);
+}
+
 /*AMP_stat::AMP_stat() {
   resetStat();
 }*/
