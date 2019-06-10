@@ -105,6 +105,11 @@ bool AMP_utils::isInsideRectangle(const pcl::PointXY &P, const pcl::PointXY &A,
 
 #endif
 
+float AMP_utils::distXY(const pcl::PointXY &A, const pcl::PointXY &B) {
+  register float dx = A.x - B.x, dy = A.y - B.y;
+  return sqrtf(dx * dx + dy * dy);
+}
+
 /*AMP_stat::AMP_stat() {
   resetStat();
 }*/
@@ -147,11 +152,11 @@ void AMP_stat::updateStat(const float r, const float a, const pcl::PointXYZ &poi
 void AMP_stat::resetStat() {
   isUpdated = false;
   // the following default values are based on filtering of visibleCloud
-  Rminmax.x = max_range;       // impossible value for min
-  Rminmax.y = min_range;           // impossible value for max
+  Rminmax.x = MAX_FRONT_Range;       // impossible value for min
+  Rminmax.y = MIN_FRONT_Range;           // impossible value for max
   Aminmax.x = angle_range;          // impossible value for min
   Aminmax.y = -Aminmax.x; // impossible value for max
-  Xminmax.x = max_range;       // impossible value for min
+  Xminmax.x = MAX_FRONT_Range;       // impossible value for min
   Xminmax.y = -Xminmax.x; // impossible value for max
   Yminmax.x = Xminmax.x;  // impossible value for min
   Yminmax.y = -Yminmax.x;  // impossible value for max

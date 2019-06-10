@@ -7,6 +7,7 @@
   * 2019-03-20  Created by Alexander Konovalenko
   * 2019-04-23  Successfully tested on the car. Lightning in the room
   *             can negatively affect the LIDAR!!!
+  * 2019-06-07  Bug fixes.
   *
   **/
 
@@ -31,7 +32,7 @@
   #define maxSidePointsInPathCloud 10U
 #endif
 
-#define BACKWARD_MOTION
+//#define BACKWARD_MOTION
 
 // naming constants for the publisher and data/clouds
 const std::string AMP_NAME = "amp";
@@ -70,32 +71,35 @@ const std::string VESC_NAME = "vesc/high_level/ackermann_cmd_mux/input/default";
 #define   SteeringAngleLimit  DEG2RAD(29.4f)
 
 // LIDAR data filtering (for visibleCloud) withing following intervals:
-#define   max_range           2.5f
-//#define   min_range           0.10f // tested OK on 2019-04-23
-#define   min_range           0.05f
+#define   MAX_FRONT_Range     2.5f
+//#define   MIN_FRONT_Range     0.10f // tested OK on 2019-04-23
+#define   MIN_FRONT_Range     0.15f
 //#define   angle_range         DEG2RAD(28.6f)  // default in BMP
-#define   angle_range         DEG2RAD(90.0f)    // tested in car
+//#define   angle_range         DEG2RAD(90.0f)    // tested in car 2019-04-23
+#define   angle_range         DEG2RAD(70.0f)
 // filtering parameters for moving back (back off):
-#define   max_range_Back      0.70f
-#define   min_range_Back      0.25f
+#define   MAX_BACK_Range      0.70f
+#define   MIN_BACK_Range      0.30f
 #define   angle_range_Back    DEG2RAD(45.0f)
+#define   MAX_ALLOWED_POINTS  2 // this is filtering of the noisy points
 
-// safe width & corresponding half angle width where car can go through within max_range
+// safe width & corresponding half angle width where car can go through within MAX_FRONT_Range
 #define   carWidth_m          0.33f
-#define   RmaxHalfWidthAngle  atan2f(carWidth_m / 2.0f, max_range)
-#define   RminHalfWidthAngle  atan2f(carWidth_m / 2.0f, min_range)
+#define   RmaxHalfWidthAngle  atan2f(carWidth_m / 2.0f, MAX_FRONT_Range)
+#define   RminHalfWidthAngle  atan2f(carWidth_m / 2.0f, MIN_FRONT_Range)
 
 // rectangular path determination algorithm relevant
 #define   pathsAngPitch       (2.0f * RmaxHalfWidthAngle)
 #define   pathsAngPitchHalf   (0.5f * pathsAngPitch)
 #define   pathsNumber         (2.0f * angle_range / pathsAngPitch)
 #define   pathsDistPitch      0.3f   // in m, increments in r for the rectangle path finding
-#define   minPathWidth        (carWidth_m * 1.1f)
+#define   minPathWidth        (carWidth_m * 1.2f)
 #define   maxPathWidth        (minPathWidth * 5.0f)
-#define   pathWidthPitch      ((maxPathWidth - minPathWidth) / 4.0)
+#define   minPathRange        MIN_FRONT_Range
+#define   pathWidthPitch      (carWidth_m * 0.5)
 #define   AREA_TOLERANCE      1.0e-4f
 #define   BEST_PATHS_LEN      9     // a number of paths to cache
-#define   NO_GO_MIN_DIST      0.3f  // in m
+#define   NO_GO_MIN_DIST      MIN_FRONT_Range  // in m
 
 // misc parameters:
 // seem that VESC cannot properly manage driving att speeds lower than 0.35 m/s
@@ -126,6 +130,7 @@ class AMP_utils {
       const pcl::PointXY &C, const pcl::PointXY &D);
     static bool isInsideRectangle(const pcl::PointXY &p, const pcl::PointXY &A,
       const pcl::PointXY &B, const pcl::PointXY &C, const pcl::PointXY &D);
+    static float distXY(const pcl::PointXY &A, const pcl::PointXY &B);
 
     // additional functions
     #ifdef FUNCTIONAL_DEBUG_INFO

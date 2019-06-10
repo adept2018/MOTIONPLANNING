@@ -67,7 +67,6 @@ Visualization Manager:
       Unreliable: false
       Value: false
       Visibility:
-        "": true
         DepthCloud: true
         Grid: true
         PointCloud2: true
@@ -302,25 +301,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 7.63764572
+      Distance: 5.07948494
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.185456961
-        Y: 0.097910732
-        Z: -0.0189287439
+        X: -0.205177903
+        Y: 0.0714453608
+        Z: -0.0101133324
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.684796035
+      Pitch: 1.50479639
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.0103997
+      Yaw: 0.78039968
     Saved: ~
 Window Geometry:
   Camera:
@@ -340,5 +339,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1536
-  X: 310
-  Y: 23
+  X: 308
+  Y: -2
