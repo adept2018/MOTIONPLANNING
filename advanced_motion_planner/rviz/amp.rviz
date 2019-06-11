@@ -11,9 +11,11 @@ Panels:
         - /PointCloud21
         - /PointCloud22
         - /Pose1
+        - /Pose1/Status1
         - /PointCloud23
         - /Pose3
         - /PointCloud24
+        - /PointCloud25
       Splitter Ratio: 0.5
     Tree Height: 615
   - Class: rviz/Selection
@@ -67,6 +69,7 @@ Visualization Manager:
       Unreliable: false
       Value: false
       Visibility:
+        "": true
         DepthCloud: true
         Grid: true
         PointCloud2: true
@@ -276,6 +279,36 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 0; 255
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.0299999993
+      Style: Flat Squares
+      Topic: /amp/cloud/visible_DBG
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -301,7 +334,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 5.07948494
+      Distance: 6.37170601
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
@@ -339,5 +372,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1536
-  X: 308
-  Y: -2
+  X: 290
+  Y: 26

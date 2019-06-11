@@ -81,7 +81,7 @@ const std::string VESC_NAME = "vesc/high_level/ackermann_cmd_mux/input/default";
 #define   MAX_BACK_Range      0.70f
 #define   MIN_BACK_Range      0.30f
 #define   angle_range_Back    DEG2RAD(45.0f)
-#define   MAX_ALLOWED_POINTS  2 // this is filtering of the noisy points
+#define   MAX_ALLOWED_POINTS  0 // this is filtering of the noisy points, 0 - no filter is applied
 
 // safe width & corresponding half angle width where car can go through within MAX_FRONT_Range
 #define   carWidth_m          0.33f
