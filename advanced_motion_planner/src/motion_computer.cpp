@@ -111,11 +111,11 @@ float MotionComputer::getWeightedAverageDirection(const int n) {
 
 bool  MotionComputer::calcLargestRectangularDirection(const int n, const LaserScanToPointCloud &ls) {
   register float a_best = 0.0f, r_best = 0.0f, w_best = 0.0f, a_i, r_i, w_i;
-  const float amin = -angle_range + pathsAngPitchHalf;
-  const float amax = angle_range - pathsAngPitchHalf;
-  /*// optimize for performance (although not reliable if noise is present):
+  /*const float amin = -angle_range + pathsAngPitchHalf;
+  const float amax = angle_range - pathsAngPitchHalf;*/
+  // optimize for performance (although not reliable if noise is present):
   const float amin = ls.statVis.Aminmax.x + pathsAngPitchHalf;
-  const float amax = ls.statVis.Aminmax.y - pathsAngPitchHalf; */
+  const float amax = ls.statVis.Aminmax.y - pathsAngPitchHalf; 
   uint counter = 0;
   bool res = false;
 
