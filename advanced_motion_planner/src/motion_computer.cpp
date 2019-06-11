@@ -2,6 +2,8 @@
 
 MotionComputer::MotionComputer(ros::NodeHandle &nh) {
     m_subscriber = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
+
+    WallFollower wallFollower(const float& K_p, const float& K_i, const float& K_d, const float& dt, const float& min, const float& max);
 }
 
 void MotionComputer::scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan) {
@@ -23,14 +25,12 @@ bool MotionComputer::computeMotion() {
         // Create map
         map = laserScanToPointCloud.scanToCloud(scan, 0, scan.ranges.size(), parameters.min_range, parameters.max_range, parameters.lidar_offset, true);
 
-        // Map out observation points
+        // Isolate observation points for the wall follower
         uint16_t min_observation_point = static_cast<uint16_t>(cloud.size() * parameters.min_observation);
         uint16_t max_observation_point = static_cast<uint16_t>(cloud.size() * parameters.max_observation);
-        observation_point = laserScanToPointCloud.scanToCloud(scan, min_observation_point, max_observation_point, parameters.min_range, parameters.max_range, parameters.lidar_offset, false);
+        observation_points = laserScanToPointCloud.scanToCloud(scan, min_observation_point, max_observation_point, parameters.min_range, parameters.max_range, parameters.lidar_offset, false);
 
-
-
-        if (!wallFollower.followTheWall) {
+        if (!wallFollower.followTheWall(observation_points, )) {
             std::cerr << "Failed to follow the wall - driving forward with reduced speed" << std::endl;
             ackMsg.steering_angle = 0.0f;
             ackMsg.speed = parameters.min_speed;

@@ -19,3 +19,6 @@
 /advanced_motion_planner/K_p: 1.0
 /advanced_motion_planner/K_i: 0.0
 /advanced_motion_planner/K_d: 0.0
+/advanced_motion_planner/dt: 1.0
+/advanced_motion_planner/min_direction: -10.0
+/advanced_motion_planner/max_direction: 10.0

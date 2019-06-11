@@ -27,6 +27,9 @@ public:
     float K_p;
     float K_i;
     float K_d;
+    float dt;
+    float min_direction;
+    float max_direction;
 
     Parameters() {
         isNodeHandleSet = false;
@@ -58,6 +61,9 @@ public:
         nodeHandle->param<float>("/advanced_motion_planner/K_p", K_p, 1.00f);
         nodeHandle->param<float>("/advanced_motion_planner/K_i", K_i, 0.00f);
         nodeHandle->param<float>("/advanced_motion_planner/K_d", K_d, 0.00f);
+        nodeHandle->param<float>("/advanced_motion_planner/dt", dt, 1.00f);
+        nodeHandle->param<float>("/advanced_motion_planner/min_direction", min_direction, -10.0f);
+        nodeHandle->param<float>("/advanced_motion_planner/max_direction", max_direction, 10.0f);
 
         min_observation = min_observation < 0.0f : 0.0f ? min_observation;
         min_observation = min_observation > 1.0f : 1.0f ? min_observation;
@@ -92,6 +98,9 @@ public:
         std::cout << "K_p: " << K_p << std::endl;
         std::cout << "K_i: " << K_i << std::endl;
         std::cout << "K_d: " << K_d << std::endl;
+        std::cout << "dt: " << dt << std::endl;
+        std::cout << "min_direction: " << min_direction << std::endl;
+        std::cout << "max_direction: " << max_direction << std::endl;
     }
 };
 
