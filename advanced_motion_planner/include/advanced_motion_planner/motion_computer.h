@@ -10,6 +10,18 @@
 #include <advanced_motion_planner/laserscan_to_pointcloud.h>
 #include <sensor_msgs/Image.h>
 
+class clusterDepth{
+public:
+    clusterDepth(int _size, int _first_index, float _dist){
+        size = _size;
+        first_index = _first_index;
+        dist = _dist;
+    };
+    int size;
+    int first_index;
+    float dist;
+};
+
 class MotionComputer {
 private:
     LaserScanToPointCloud laserScanToPointCloud;
@@ -18,7 +30,7 @@ private:
     bool acquired_scan;
 
     std::queue<sensor_msgs::LaserScan> scan_queue;
-    std::queue<std::vector<float>> depth_queue;
+    std::queue<std::vector<clusterDepth> > depth_queue;
 
     // Subscriber:
     ros::Subscriber scan_sub;

@@ -1,4 +1,5 @@
 #include <advanced_motion_planner/advanced_motion_planner.h>
+#define GRAD_TO_RAD 0.0174532
 
 int main(int argc, char** argv) {
 
@@ -20,14 +21,15 @@ int main(int argc, char** argv) {
         ros::spinOnce();
 
         if (!motionComputer.computeMotion()) {
-            std::cout << "ERROR: Cannot compute motion." << std::endl;
+            /* std::cout << "ERROR: Cannot compute motion." << std::endl; */
+            ROS_INFO("ERROR: Cannot compute motion.");
             return -1;
         }
 
         float steeringAngle = 0;
         float speed = 0.3;
         if(motionComputer.direction.size() == 0) continue;
-            steeringAngle = motionComputer.direction[2]*0.0174532;
+            steeringAngle = motionComputer.direction[2]*GRAD_TO_RAD;
             /* if (steeringAngle > 0.34) { */
             /*     steeringAngle = 0.34; */
             /* } */
@@ -37,7 +39,7 @@ int main(int argc, char** argv) {
             if(motionComputer.direction[3] < 0.35)
             {
                 speed = -0.3;
-                steeringAngle *= -1;
+                steeringAngle = -45*GRAD_TO_RAD;
             }
             /* ROS_INFO("ANGLE2 %f", steeringAngle); */
             /* ROS_INFO("SPEED %f", speed); /1* printf("\rANGLE %f,in grad  %f", motionComputer.direction[2], steeringAngle); *1/ */
@@ -50,7 +52,7 @@ int main(int argc, char** argv) {
             if (steeringAngle > 0.34) {
                 steeringAngle = 0.34;
             }
-            if (steeringAngle < -0.34) {
+            else if (steeringAngle < -0.34) {
                 steeringAngle = -0.34;
             }
             /* ROS_INFO("ANGLE2 %f", steeringAngle); */
