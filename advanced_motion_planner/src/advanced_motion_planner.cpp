@@ -7,10 +7,12 @@ int main(int argc, char** argv) {
     ros::NodeHandle nodeHandle;
     MotionComputer motionComputer(nodeHandle);
 
-    m_pubPose = nodeHandle.advertise<geometry_msgs::PoseStamped>("amp/pose", 10);
-    m_pubCloud = nodeHandle.advertise<sensor_msgs::PointCloud2>("amp/cloud/visible", 10);
-    m_pubDirection = nodeHandle.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
     m_pubAck = nodeHandle.advertise<ackermann_msgs::AckermannDriveStamped>("vesc/high_level/ackermann_cmd_mux/input/default", 10);
+    m_pubPose = nodeHandle.advertise<geometry_msgs::PoseStamped>("amp/pose", 10);
+    m_pubDirection = nodeHandle.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
+    m_pubMap = nodeHandle.advertise<sensor_msgs::PointCloud2>("amp/cloud/map", 10);
+    m_pubObservedPoints = nodeHandle.advertise<sensor_msgs::PointCloud2>("amp/cloud/observed_points", 10);
+    m_pubWallOutline = nodeHandle.advertise<sensor_msgs::PointCloud2>("amp/cloud/wall_outline", 10);
 
     ros::Rate rate(40.0f);
     std::cout << "Running the advanced motion planner." << std::endl;
@@ -23,57 +25,59 @@ int main(int argc, char** argv) {
             return -1;
         }
 
-        float steeringAngle = 0.0f;
+        // Publish ackermann msg
+        ackermann_msgs::AckermannDriveStamped ackMsg;
+        ackMsg.drive.steering_angle = motionComputer.ackMsg.steering_angle;
+        ackMsg.drive.speed = motionComputer.ackMsg.speed;
+        m_pubAck.publish(ackMsg);
 
-        if (!motionComputer.cloud.empty()) {
+        // Publish computed direction
+        geometry_msgs::PoseStamped computedDirectionMsg;
+        computedDirectionMsg.pose.position.x = 0.0f;
+        computedDirectionMsg.pose.position.y = 0.0f;
+        computedDirectionMsg.pose.position.z = 0.0f;
+        computedDirectionMsg.pose.orientation.x = motionComputer.direction.x;
+        computedDirectionMsg.pose.orientation.y = motionComputer.direction.y;
+        computedDirectionMsg.pose.orientation.z = 0.0f;
+        computedDirectionMsg.pose.orientation.w = 0.0f;
+        computedDirectionMsg.header.frame_id = HEADER_FRAME_ID;
+        m_pubPose.publish(computedDirectionMsg);
 
-            // Computed angle
-            steeringAngle = motionComputer.direction.theta;
-            if (steeringAngle > 0.34f) {
-                steeringAngle = 0.34f;
-            }
-            if (steeringAngle < -0.34f) {
-                steeringAngle = -0.34f;
-            }
+        // Publish vector showing forward direction
+        geometry_msgs::PoseStamped forwardDirectionMsg;
+        forwardDirectionMsg.pose.position.x = 0.0f;
+        forwardDirectionMsg.pose.position.y = 0.0f;
+        forwardDirectionMsg.pose.position.z = 0.0f;
+        forwardDirectionMsg.pose.orientation.x = 1.0f;
+        forwardDirectionMsg.pose.orientation.y = 0.0f;
+        forwardDirectionMsg.pose.orientation.z = 0.0f;
+        forwardDirectionMsg.pose.orientation.w = 0.0f;
+        forwardDirectionMsg.header.frame_id = HEADER_FRAME_ID;
+        m_pubDirection.publish(forwardDirectionMsg);
 
-            // Computed direction
-            geometry_msgs::PoseStamped outputMsg;
-            outputMsg.header.frame_id = "amp";
-
-            outputMsg.pose.position.x = 0.0f;
-            outputMsg.pose.position.y = 0.0f;
-            outputMsg.pose.position.z = 0.0f;
-
-            outputMsg.pose.orientation.x = motionComputer.direction.x;
-            outputMsg.pose.orientation.y = motionComputer.direction.y;
-            outputMsg.pose.orientation.z = 0.0f;
-            outputMsg.pose.orientation.w = 0.0f;
-
-            m_pubPose.publish(outputMsg);
+        // Publish pointcloud map
+        if (!motionComputer.map.empty()) {
+            sensor_msgs::PointCloud2 mapMsg;
+            pcl::toROSMsg(motionComputer.map, mapMsg);
+            mapMsg.header.frame_id = HEADER_FRAME_ID;
+            m_pubMap.publish(mapMsg);
         }
 
-        // Vector showing forward direction
-        geometry_msgs::PoseStamped direction;
-        direction.header.frame_id = "amp";
+        // Publish observed points
+        if (!motionComputer.observed_points.empty()) {
+            sensor_msgs::PointCloud2 observedPointMsg;
+            pcl::toROSMsg(motionComputer.observed_points, observedPointMsg);
+            observedPointMsg.header.frame_id = HEADER_FRAME_ID;
+            m_pubObservedPoints.publish(observedPointMsg);
+        }
 
-        direction.pose.position.x = 0.0f;
-        direction.pose.position.y = 0.0f;
-        direction.pose.position.z = 0.0f;
-
-        direction.pose.orientation.x = 1.0f;
-        direction.pose.orientation.y = 0.0f;
-        direction.pose.orientation.z = 0.0f;
-        direction.pose.orientation.w = 0.0f;
-        m_pubDirection.publish(direction);
-
-        ackermann_msgs::AckermannDriveStamped ackMsg;
-
-        // 0 or computed angle from motionComputer
-        ackMsg.drive.steering_angle = steeringAngle;
-        // Use fixed speed (m/s)
-        ackMsg.drive.speed = 0.5f;
-
-        m_pubAck.publish(ackMsg);
+        // Publish estimated wall outline
+        if (!motionComputer.wall_outline.empty()) {
+            sensor_msgs::PointCloud2 wallOutlineMsg;
+            pcl::toROSMsg(motionComputer.wall_outline, wallOutlineMsg);
+            wallOutlineMsg.header.frame_id = HEADER_FRAME_ID;
+            m_pubWallOutline.publish(wallOutlineMsg);
+        }
 
         rate.sleep();
     }

@@ -1,33 +1,6 @@
 #include <advanced_motion_planner/wall_follower.h>
 
-// Wall follower
-/*
-          *
-           *
-             *
-               *
-              *
-             *
-              *
-            *
-             *
-            *
-      x      *
-           *
-             *
-            *
-             *
-             *
-           *
-
-           quarter of  circle
-*/
-
-bool WallFollower::followTheWall(
-    const pcl::PointCloud<pcl::PointXYZ>& cloud,
-    const float& K_p,
-    const float& K_i,
-    const float& K_d) {
+bool WallFollower::followTheWall(const pcl::PointCloud<pcl::PointXYZ>& cloud) {
 
     if (cloud.size() == 0) {
         std::cerr << "WallFollower: size of input cloud is equal to 0" << std::endl;
@@ -40,19 +13,24 @@ bool WallFollower::followTheWall(
 
     pcl::PointXYZ point;
     for (uint16_t i = min_wall_line; i < max_wall_line; ++i) {
-        point.x = i;
-        point.y = m_a * i + m_b;
-        point.z = 0;
+        // point.x = i;
+        // point.y = m_a * i + m_b;
+
+        // Rotate points 90 degrees clockwise [(x,y) -> (y,-x)] since m_a and m_b calculated for points rotated 90 degrees counter-clockwise:
+        point.x = m_a * i + m_b;
+        point.y = -i;
         estimated_line.push_back(point);
     }
 
-    calculatePID(K_p, K_i, K_d);
+    // float x = (m_carrot_distance - m_b)/m_a - m_wall_distance;
 
-    for (uint16_t i = min_observation_point; i < max_observation_point; ++i) {
-        // least squares + PID
-        // when turning, slow down
-        // if cant turn, stop, wiggle backwards a bit, then continue algorithm
-    }
+    // Rotate points 90 degrees clockwise [(x,y) -> (y,-x)] since m_a and m_b calculated for points rotated 90 degrees counter-clockwise:
+    float x = (-m_wall_distance - m_b)/m_a - m_carrot_distance;
+    float y = m_a * x + m_b;
+
+    float error_angle = atanf(y/(-m_carrot_distance));
+    //float error_angle = 0.0f - atanf(m_a);
+    direction = calculatePID(error_angle);
 
     return true;
 }
@@ -63,19 +41,18 @@ bool WallFollower::linearLeastSquares(const pcl::PointCloud<pcl::PointXYZ>& clou
     float ybar{0.0f};
 
     size = cloud.size()
-    if (size == 0) {
-        std::cerr << "linearLeastSquares: Input cloud size is 0" << std::endl;
+    if (size == 0 || size == 1) {
+        std::cerr << "linearLeastSquares: Input cloud size is 0 or 1" << std::endl;
         return false;
-    }
-    else if (size == 1) {
-        m_a = 0.0f;
-        m_b = cloud[0].points.y;
-        return true;
     }
 
     for (uint16_t i = 0; i < size; ++i) {
-        xbar += cloud[i].points.x;
-        ybar += cloud[i].points.y;
+        // xbar += cloud[i].points.x;
+        // ybar += cloud[i].points.y;
+
+        // Rotate points 90 degrees counter-clockwise [(x,y) -> (-y, x)] since y = a*x + b cannot be used for vertical lines:
+        xbar += -cloud[i].points.y;
+        ybar += cloud[i].points.x;
     }
 
     xbar = xbar / static_cast<float>(size);
@@ -85,8 +62,12 @@ bool WallFollower::linearLeastSquares(const pcl::PointCloud<pcl::PointXYZ>& clou
     float denominator{0.0f};
 
     for (uint16_t i = 0; i < size; ++i) {
-        numerator += (cloud[i].points.x - xbar) * (cloud[i].points.y - ybar);
-        denominator += pow((cloud[i].points.x - xbar), 2);
+        // numerator += (cloud[i].points.x - xbar) * (cloud[i].points.y - ybar);
+        // denominator += pow((cloud[i].points.x - xbar), 2);
+
+        // Rotate points 90 degrees counter-clockwise [(x,y) -> (-y, x)] since y = a*x + b cannot be used for vertical lines:
+        numerator += (-cloud[i].points.y - xbar) * (cloud[i].points.x - ybar);
+        denominator += pow((-cloud[i].points.y - xbar), 2);
     }
 
     m_a = numerator/denominator;
@@ -95,9 +76,9 @@ bool WallFollower::linearLeastSquares(const pcl::PointCloud<pcl::PointXYZ>& clou
     return true;
 }
 
-void WallFollower::calculatePID(const float& setpoint, const float& direction) {
+float WallFollower::calculatePID(const float& error) {
 
-    float error = setpoint - direction;
+    m_previous_error = error;
 
     float P = m_Kp * error;
 
@@ -106,5 +87,18 @@ void WallFollower::calculatePID(const float& setpoint, const float& direction) {
 
     float D = m_Kd * (error - m_previous_error)/m_dt;
 
-    m_previous_error = error;
+    float output = P + I + D;
+
+    std::cout << "calculatePID output";
+    if (output < m_min_direction) {
+        output = m_min_direction;
+        std::cout << " [m_min_direction]";
+    }
+    else if (output > m_max_direction) {
+        output = m_max_direction;
+        std::cout << " [m_max_direction]";
+    }
+    std::cout << ": " << output << std::endl;
+
+    return output;
 }

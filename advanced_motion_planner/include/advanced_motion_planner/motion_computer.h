@@ -9,11 +9,12 @@
 
 #include <advanced_motion_planner/laserscan_to_pointcloud.h>
 #include <advanced_motion_planner/package_structs.h>
+#include <advanced_motion_planner/parameters.h>
 #include <advanced_motion_planner/wall_follower.h>
 
 class MotionComputer {
 private:
-    void scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan);
+    void scanCallBack(const sensor_msgs::LaserScan::ConstPtr& scan);
 
     LaserScanToPointCloud laserScanToPointCloud;
     WallFollower wallFollower;
@@ -25,14 +26,11 @@ private:
     // Subscriber:
     ros::Subscriber m_subscriber;
 
-protected:
-    Parameters parameters;
-
 public:
-    MotionComputer(ros::NodeHandle &nh);
+    MotionComputer(ros::NodeHandle& nh);
     bool computeMotion();
 
-    AckermannMsg ackMsg;
+    AckermannMessage ackMsg;
     Direction direction;
     pcl::PointCloud<pcl::PointXYZ> map;
     pcl::PointCloud<pcl::PointXYZ> observed_points;
