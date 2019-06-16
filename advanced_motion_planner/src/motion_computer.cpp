@@ -1,14 +1,14 @@
 #include <advanced_motion_planner/motion_computer.h>
 
-MotionComputer::MotionComputer(ros::NodeHandle& nh) {
-    m_subscriber = nh.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
+MotionComputer::MotionComputer(ros::NodeHandle& nodeHandle) {
+    m_subscriber = nodeHandle.subscribe("/scan", 10, &MotionComputer::scanCallBack, this);
 
-    Parameters parameters;
+    ros::NodeHandle* nh = &nodeHandle;
     parameters.setNodeHandle(nh);
     parameters.update();
 
-    WallFollower wallFollower(parameters.wall_distance, parameters.carrot_distance,
-                              parameters.K_p, parameters.K_i, parameters.K_d, parameters.dt,
+    wallFollower.initialize(parameters.wall_distance, parameters.carrot_distance,
+                              parameters.K_p, parameters.K_i, parameters.K_d,
                               parameters.min_direction, parameters.max_direction,
                               parameters.min_wall_line, parameters.max_wall_line);
 }
@@ -29,14 +29,17 @@ bool MotionComputer::computeMotion() {
         wall_outline.clear();
 
         // Create map
-        map = laserScanToPointCloud.scanToCloud(scan, 0, scan.ranges.size(), parameters.min_range, parameters.max_range, parameters.lidar_offset, true);
+        map = laserScanToPointCloud.scanToCloud(scan, 0, scan.ranges.size(), parameters.min_scan_range, parameters.max_scan_range, parameters.lidar_offset, true);
 
         // Isolate observation points for the wall follower
-        uint16_t min_observation_point = static_cast<uint16_t>(map.size() * parameters.min_observation);
-        uint16_t max_observation_point = static_cast<uint16_t>(map.size() * parameters.max_observation);
-        observed_points = laserScanToPointCloud.scanToCloud(scan, min_observation_point, max_observation_point, parameters.min_range, parameters.max_range, parameters.lidar_offset, false);
+        uint16_t min_observation_point = static_cast<uint16_t>(scan.ranges.size() * parameters.min_observation);
+        uint16_t max_observation_point = static_cast<uint16_t>(scan.ranges.size() * parameters.max_observation);
+        observed_points = laserScanToPointCloud.scanToCloud(scan, min_observation_point, max_observation_point, parameters.min_scan_range, parameters.max_scan_range, parameters.lidar_offset, false);
 
-        if (!wallFollower.followTheWall(observed_points)) {
+        m_dt = scan.scan_time;
+        std::cerr << "m_dt: " << m_dt << std::endl;
+
+        if (!wallFollower.followTheWall(observed_points, m_dt)) {
             std::cerr << "Failed to follow the wall - driving forward with reduced speed" << std::endl;
             ackMsg.steering_angle = 0.0f;
             ackMsg.speed = parameters.min_speed;

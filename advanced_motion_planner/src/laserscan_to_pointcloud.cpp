@@ -15,13 +15,8 @@ pcl::PointCloud<pcl::PointXYZ> LaserScanToPointCloud::scanToCloud(
     for (uint16_t i = min_scan; i < max_scan; ++i) {
 
         float r = scan.ranges[i];
-        if (!is_map) {
-            if (scan.ranges[i] < min_range) {
-                r = min_range;
-            }
-            else if (scan.ranges[i] > max_range) {
-                r = max_range;
-            }
+        if (!is_map && (r < min_range || r > max_range)) {
+            continue;
         }
 
         float theta = scan.angle_min + i * scan.angle_increment + lidar_offset;

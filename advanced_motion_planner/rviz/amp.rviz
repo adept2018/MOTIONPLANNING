@@ -30,6 +30,8 @@ Panels:
     Name: Time
     SyncMode: 0
     SyncSource: invisible points
+Toolbars:
+  toolButtonStyle: 2
 Visualization Manager:
   Class: ""
   Displays:
@@ -114,7 +116,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.0500000007
       Style: Flat Squares
-      Topic: /bmp/cloud/invisible
+      Topic: /amp/cloud/map
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -144,7 +146,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.0500000007
       Style: Flat Squares
-      Topic: /bmp/cloud/visible
+      Topic: /amp/cloud/wall_outline
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -165,7 +167,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: bmp
+    Fixed Frame: amp
     Frame Rate: 30
   Name: root
   Tools:
@@ -185,7 +187,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0
+      Angle: 12.6700077
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
@@ -195,7 +197,7 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Scale: 106.482742
+      Scale: 37.9251785
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
       X: 0

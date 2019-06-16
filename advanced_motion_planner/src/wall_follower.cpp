@@ -1,6 +1,6 @@
 #include <advanced_motion_planner/wall_follower.h>
 
-bool WallFollower::followTheWall(const pcl::PointCloud<pcl::PointXYZ>& cloud) {
+bool WallFollower::followTheWall(const pcl::PointCloud<pcl::PointXYZ>& cloud, const float& dt) {
 
     if (cloud.size() == 0) {
         std::cerr << "WallFollower: size of input cloud is equal to 0" << std::endl;
@@ -11,14 +11,17 @@ bool WallFollower::followTheWall(const pcl::PointCloud<pcl::PointXYZ>& cloud) {
         return false;
     }
 
+    estimated_line.clear();
     pcl::PointXYZ point;
-    for (uint16_t i = min_wall_line; i < max_wall_line; ++i) {
+    for (float i = m_min_wall_line; i < m_max_wall_line; i += 0.1) {
         // point.x = i;
         // point.y = m_a * i + m_b;
+        // point.z = 0.0f;
 
         // Rotate points 90 degrees clockwise [(x,y) -> (y,-x)] since m_a and m_b calculated for points rotated 90 degrees counter-clockwise:
         point.x = m_a * i + m_b;
         point.y = -i;
+        point.z = 0.0f;
         estimated_line.push_back(point);
     }
 
@@ -30,7 +33,7 @@ bool WallFollower::followTheWall(const pcl::PointCloud<pcl::PointXYZ>& cloud) {
 
     float error_angle = atanf(y/(-m_carrot_distance));
     //float error_angle = 0.0f - atanf(m_a);
-    direction = calculatePID(error_angle);
+    direction = calculatePID(error_angle, dt);
 
     return true;
 }
@@ -40,7 +43,7 @@ bool WallFollower::linearLeastSquares(const pcl::PointCloud<pcl::PointXYZ>& clou
     float xbar{0.0f};
     float ybar{0.0f};
 
-    size = cloud.size()
+    uint16_t size = cloud.size();
     if (size == 0 || size == 1) {
         std::cerr << "linearLeastSquares: Input cloud size is 0 or 1" << std::endl;
         return false;
@@ -51,8 +54,8 @@ bool WallFollower::linearLeastSquares(const pcl::PointCloud<pcl::PointXYZ>& clou
         // ybar += cloud[i].points.y;
 
         // Rotate points 90 degrees counter-clockwise [(x,y) -> (-y, x)] since y = a*x + b cannot be used for vertical lines:
-        xbar += -cloud[i].points.y;
-        ybar += cloud[i].points.x;
+        xbar += -cloud.points[i].y;
+        ybar += cloud.points[i].x;
     }
 
     xbar = xbar / static_cast<float>(size);
@@ -66,8 +69,8 @@ bool WallFollower::linearLeastSquares(const pcl::PointCloud<pcl::PointXYZ>& clou
         // denominator += pow((cloud[i].points.x - xbar), 2);
 
         // Rotate points 90 degrees counter-clockwise [(x,y) -> (-y, x)] since y = a*x + b cannot be used for vertical lines:
-        numerator += (-cloud[i].points.y - xbar) * (cloud[i].points.x - ybar);
-        denominator += pow((-cloud[i].points.y - xbar), 2);
+        numerator += (-cloud.points[i].y - xbar) * (cloud.points[i].x - ybar);
+        denominator += pow((-cloud.points[i].y - xbar), 2);
     }
 
     m_a = numerator/denominator;
@@ -76,16 +79,16 @@ bool WallFollower::linearLeastSquares(const pcl::PointCloud<pcl::PointXYZ>& clou
     return true;
 }
 
-float WallFollower::calculatePID(const float& error) {
+float WallFollower::calculatePID(const float& error, const float& dt) {
 
     m_previous_error = error;
 
     float P = m_Kp * error;
 
-    m_integral += error * m_dt;
+    m_integral += error * dt;
     float I = m_Ki * m_integral;
 
-    float D = m_Kd * (error - m_previous_error)/m_dt;
+    float D = m_Kd * (error - m_previous_error)/dt;
 
     float output = P + I + D;
 

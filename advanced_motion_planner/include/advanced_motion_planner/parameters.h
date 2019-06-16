@@ -23,12 +23,11 @@ public:
     float max_observation;
     float wall_distance;
     float carrot_distance;
-    int8_t min_wall_line;
-    int8_t max_wall_line;
+    int16_t min_wall_line;
+    int16_t max_wall_line;
     float K_p;
     float K_i;
     float K_d;
-    float dt;
     float min_direction;
     float max_direction;
 
@@ -48,25 +47,32 @@ public:
 
         float pi = atanf(1.0f)*4.0f;
 
+        int wall_direction_int;
+        int min_wall_line_int;
+        int max_wall_line_int;
+
         nodeHandle->param<float>("/advanced_motion_planner/lidar_offset", lidar_offset, 0.00f);
         nodeHandle->param<float>("/advanced_motion_planner/min_scan_range", min_scan_range, 0.05f);
         nodeHandle->param<float>("/advanced_motion_planner/max_scan_range", max_scan_range, 2.50f);
         nodeHandle->param<float>("/advanced_motion_planner/min_speed", min_speed, 0.30f);
         nodeHandle->param<float>("/advanced_motion_planner/max_speed", max_speed, 0.50f);
         nodeHandle->param<float>("/advanced_motion_planner/speed_incr", speed_incr, 0.05f);
-        nodeHandle->param<uint8_t>("/advanced_motion_planner/wall_direction", wall_direction, 1);  // right wall by default
+        nodeHandle->param<int>("/advanced_motion_planner/wall_direction", wall_direction_int, 1);  // right wall by default
         nodeHandle->param<float>("/advanced_motion_planner/min_observation", min_observation, 0.25f);
         nodeHandle->param<float>("/advanced_motion_planner/max_observation", max_observation, 0.75f);
         nodeHandle->param<float>("/advanced_motion_planner/wall_distance", wall_distance, 0.10f);
         nodeHandle->param<float>("/advanced_motion_planner/carrot_distance", carrot_distance, 1.00f);
-        nodeHandle->param<int8_t>("/advanced_motion_planner/min_wall_line", min_wall_line, -10);
-        nodeHandle->param<int8_t>("/advanced_motion_planner/max_wall_line", max_wall_line, 10);
+        nodeHandle->param<int>("/advanced_motion_planner/min_wall_line", min_wall_line_int, -10);
+        nodeHandle->param<int>("/advanced_motion_planner/max_wall_line", max_wall_line_int, 10);
         nodeHandle->param<float>("/advanced_motion_planner/K_p", K_p, 1.00f);
         nodeHandle->param<float>("/advanced_motion_planner/K_i", K_i, 0.00f);
         nodeHandle->param<float>("/advanced_motion_planner/K_d", K_d, 0.00f);
-        nodeHandle->param<float>("/advanced_motion_planner/dt", dt, 1.00f);
         nodeHandle->param<float>("/advanced_motion_planner/min_direction", min_direction, -pi/2.0f);
         nodeHandle->param<float>("/advanced_motion_planner/max_direction", max_direction, pi/2.0f);
+
+        wall_direction = (uint8_t) wall_direction_int;
+        min_wall_line = (int16_t) min_wall_line_int;
+        max_wall_line = (int16_t) max_wall_line_int;
 
         min_observation = min_observation < 0.0f ? 0.0f : min_observation;
         min_observation = min_observation > 1.0f ? 1.0f : min_observation;
@@ -91,17 +97,16 @@ public:
         std::cout << "min_speed: " << min_speed << std::endl;
         std::cout << "max_speed: " << max_speed << std::endl;
         std::cout << "speed_incr: " << speed_incr << std::endl;
-        std::cout << "wall_direction: " << wall_direction << std::endl;
+        std::cout << "wall_direction: " << (int) wall_direction << std::endl;
         std::cout << "wall_distance: " << wall_distance << std::endl;
         std::cout << "min_observation: " << min_observation << std::endl;
         std::cout << "max_observation: " << max_observation << std::endl;
         std::cout << "carrot_distance: " << carrot_distance << std::endl;
-        std::cout << "min_wall_line: " << min_wall_line << std::endl;
-        std::cout << "max_wall_line: " << max_wall_line << std::endl;
+        std::cout << "min_wall_line: " << (int) min_wall_line << std::endl;
+        std::cout << "max_wall_line: " << (int) max_wall_line << std::endl;
         std::cout << "K_p: " << K_p << std::endl;
         std::cout << "K_i: " << K_i << std::endl;
         std::cout << "K_d: " << K_d << std::endl;
-        std::cout << "dt: " << dt << std::endl;
         std::cout << "min_direction: " << min_direction << std::endl;
         std::cout << "max_direction: " << max_direction << std::endl;
     }

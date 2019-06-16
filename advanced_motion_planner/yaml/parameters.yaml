@@ -1,4 +1,5 @@
 /advanced_motion_planner/lidar_offset: rad(pi/2.0)
+/advanced_motion_planner/min_scan_range: 0.5
 /advanced_motion_planner/max_scan_range: 2.5
 
 /advanced_motion_planner/min_speed: 0.30
@@ -19,6 +20,5 @@
 /advanced_motion_planner/K_p: 1.0
 /advanced_motion_planner/K_i: 0.0
 /advanced_motion_planner/K_d: 0.0
-/advanced_motion_planner/dt: 1.0
 /advanced_motion_planner/min_direction: rad(-pi/2.0)
 /advanced_motion_planner/max_direction: rad(pi/2.0)
