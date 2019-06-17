@@ -75,8 +75,8 @@ const std::string VESC_NAME = "vesc/high_level/ackermann_cmd_mux/input/default";
 //#define   MIN_FRONT_Range     0.10f // tested OK on 2019-04-23
 #define   MIN_FRONT_Range     0.15f
 //#define   angle_range         DEG2RAD(28.6f)  // default in BMP
-//#define   angle_range         DEG2RAD(90.0f)    // tested in car 2019-04-23
-#define   angle_range         DEG2RAD(70.0f)
+#define   angle_range         DEG2RAD(90.0f)    // tested in car 2019-04-23
+//#define   angle_range         DEG2RAD(70.0f)
 // filtering parameters for moving back (back off):
 #define   MAX_BACK_Range      0.70f
 #define   MIN_BACK_Range      0.30f
