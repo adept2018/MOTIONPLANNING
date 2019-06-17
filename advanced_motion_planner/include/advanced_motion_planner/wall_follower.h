@@ -36,6 +36,9 @@ private:
     float m_previous_error;
     float m_integral;
 
+    // Calculated carrot visualization specific parameters
+    float m_carrot_radius;
+
     // Estimated wall visualization specific parameters
     int16_t m_min_wall_line;
     int16_t m_max_wall_line;
@@ -46,7 +49,7 @@ public:
     void initialize(const float& wall_distance, const float& carrot_distance,
                  const float& K_p, const float& K_i, const float& K_d,
                  const float& min_direction, const float& max_direction,
-                 const int16_t& min_wall_line, const int16_t& max_wall_line) {
+                 const float& carrot_radius, const int16_t& min_wall_line, const int16_t& max_wall_line) {
 
         m_a = 0.0f;
         m_b = 0.0f;
@@ -59,12 +62,14 @@ public:
         m_max_direction = max_direction;
         m_previous_error = 0.0f;
         m_integral = 0.0f;
+        m_carrot_radius = carrot_radius;
         m_min_wall_line = min_wall_line;
         m_max_wall_line = max_wall_line;
     }
 
     bool followTheWall(const pcl::PointCloud<pcl::PointXYZ>& cloud, const float& dt);
 
+    pcl::PointCloud<pcl::PointXYZ> calculated_carrot;
     pcl::PointCloud<pcl::PointXYZ> estimated_line;
     float direction;
 };

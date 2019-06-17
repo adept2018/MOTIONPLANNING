@@ -23,6 +23,7 @@ public:
     float max_observation;
     float wall_distance;
     float carrot_distance;
+    float carrot_radius;
     int16_t min_wall_line;
     int16_t max_wall_line;
     float K_p;
@@ -62,6 +63,7 @@ public:
         nodeHandle->param<float>("/advanced_motion_planner/max_observation", max_observation, 0.75f);
         nodeHandle->param<float>("/advanced_motion_planner/wall_distance", wall_distance, 0.10f);
         nodeHandle->param<float>("/advanced_motion_planner/carrot_distance", carrot_distance, 1.00f);
+        nodeHandle->param<float>("/advanced_motion_planner/carrot_radius", carrot_radius, 0.10f);
         nodeHandle->param<int>("/advanced_motion_planner/min_wall_line", min_wall_line_int, -10);
         nodeHandle->param<int>("/advanced_motion_planner/max_wall_line", max_wall_line_int, 10);
         nodeHandle->param<float>("/advanced_motion_planner/K_p", K_p, 1.00f);
@@ -102,6 +104,7 @@ public:
         std::cout << "min_observation: " << min_observation << std::endl;
         std::cout << "max_observation: " << max_observation << std::endl;
         std::cout << "carrot_distance: " << carrot_distance << std::endl;
+        std::cout << "carrot_radius: " << carrot_radius << std::endl;
         std::cout << "min_wall_line: " << (int) min_wall_line << std::endl;
         std::cout << "max_wall_line: " << (int) max_wall_line << std::endl;
         std::cout << "K_p: " << K_p << std::endl;

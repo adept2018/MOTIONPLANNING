@@ -39,6 +39,7 @@ public:
     Direction direction;
     pcl::PointCloud<pcl::PointXYZ> map;
     pcl::PointCloud<pcl::PointXYZ> observed_points;
+    pcl::PointCloud<pcl::PointXYZ> carrot;
     pcl::PointCloud<pcl::PointXYZ> wall_outline;
 };
 

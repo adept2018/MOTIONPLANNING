@@ -14,6 +14,7 @@
 /advanced_motion_planner/wall_distance: 0.1
 /advanced_motion_planner/carrot_distance: 1.00
 
+/advanced_motion_planner/carrot_radius: 0.1
 /advanced_motion_planner/min_wall_line: -10
 /advanced_motion_planner/max_wall_line: 10
 

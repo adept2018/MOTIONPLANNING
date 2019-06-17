@@ -11,7 +11,20 @@ bool WallFollower::followTheWall(const pcl::PointCloud<pcl::PointXYZ>& cloud, co
         return false;
     }
 
+    // float x = (m_carrot_distance - m_b)/m_a - m_wall_distance;
+
+    // Rotate points 90 degrees clockwise [(x,y) -> (y,-x)] since m_a and m_b calculated for points rotated 90 degrees counter-clockwise:
+    float x = (-m_wall_distance - m_b)/m_a - m_carrot_distance;
+    float y = m_a * x + m_b;
+
+    float error_angle = atanf(y/(-m_carrot_distance));
+    //float error_angle = 0.0f - atanf(m_a);
+    direction = calculatePID(error_angle, dt);
+
+
+    calculated_carrot.clear();
     estimated_line.clear();
+
     pcl::PointXYZ point;
     for (float i = m_min_wall_line; i < m_max_wall_line; i += 0.1) {
         // point.x = i;
@@ -25,15 +38,17 @@ bool WallFollower::followTheWall(const pcl::PointCloud<pcl::PointXYZ>& cloud, co
         estimated_line.push_back(point);
     }
 
-    // float x = (m_carrot_distance - m_b)/m_a - m_wall_distance;
-
-    // Rotate points 90 degrees clockwise [(x,y) -> (y,-x)] since m_a and m_b calculated for points rotated 90 degrees counter-clockwise:
-    float x = (-m_wall_distance - m_b)/m_a - m_carrot_distance;
-    float y = m_a * x + m_b;
-
-    float error_angle = atanf(y/(-m_carrot_distance));
-    //float error_angle = 0.0f - atanf(m_a);
-    direction = calculatePID(error_angle, dt);
+    point.x = x;
+    point.y = y;
+    point.z = 0.0f;
+    calculated_carrot.push_back(point);
+    float pi = atanf(1.0f) * 4.0f;
+    for (float i = -2*pi; i < 2*pi; i += 0.1) {
+        point.x = x + m_carrot_radius * cosf(i);
+        point.y = y + m_carrot_radius * sinf(i);
+        point.z = 0.0f;
+        calculated_carrot.push_back(point);
+    }
 
     return true;
 }

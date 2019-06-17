@@ -10,7 +10,7 @@ MotionComputer::MotionComputer(ros::NodeHandle& nodeHandle) {
     wallFollower.initialize(parameters.wall_distance, parameters.carrot_distance,
                               parameters.K_p, parameters.K_i, parameters.K_d,
                               parameters.min_direction, parameters.max_direction,
-                              parameters.min_wall_line, parameters.max_wall_line);
+                              parameters.carrot_radius, parameters.min_wall_line, parameters.max_wall_line);
 }
 
 void MotionComputer::scanCallBack(const sensor_msgs::LaserScan::ConstPtr &scan) {
@@ -26,6 +26,7 @@ bool MotionComputer::computeMotion() {
 
         map.clear();
         observed_points.clear();
+        carrot.clear();
         wall_outline.clear();
 
         // Create map
@@ -48,6 +49,7 @@ bool MotionComputer::computeMotion() {
             return true;
         }
 
+        carrot = wallFollower.calculated_carrot;
         wall_outline = wallFollower.estimated_line;
 
         ackMsg.steering_angle = wallFollower.direction;

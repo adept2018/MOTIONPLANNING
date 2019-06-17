@@ -18,6 +18,7 @@ ros::Publisher m_pubPose;
 ros::Publisher m_pubDirection;
 ros::Publisher m_pubMap;
 ros::Publisher m_pubObservedPoints;
+ros::Publisher m_pubCarrot;
 ros::Publisher m_pubWallOutline;
 
 // Standard header frame id:

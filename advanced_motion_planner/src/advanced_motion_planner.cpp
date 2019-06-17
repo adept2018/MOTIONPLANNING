@@ -12,6 +12,7 @@ int main(int argc, char** argv) {
     m_pubDirection = nodeHandle.advertise<geometry_msgs::PoseStamped>("amp/direction", 10);
     m_pubMap = nodeHandle.advertise<sensor_msgs::PointCloud2>("amp/cloud/map", 10);
     m_pubObservedPoints = nodeHandle.advertise<sensor_msgs::PointCloud2>("amp/cloud/observed_points", 10);
+    m_pubCarrot = nodeHandle.advertise<sensor_msgs::PointCloud2>("amp/cloud/carrot", 10);
     m_pubWallOutline = nodeHandle.advertise<sensor_msgs::PointCloud2>("amp/cloud/wall_outline", 10);
 
     ros::Rate rate(40.0f);
@@ -69,6 +70,14 @@ int main(int argc, char** argv) {
             pcl::toROSMsg(motionComputer.observed_points, observedPointMsg);
             observedPointMsg.header.frame_id = HEADER_FRAME_ID;
             m_pubObservedPoints.publish(observedPointMsg);
+        }
+
+        // Publish carrot
+        if (!motionComputer.carrot.empty()) {
+            sensor_msgs::PointCloud2 carrotMsg;
+            pcl::toROSMsg(motionComputer.carrot, carrotMsg);
+            carrotMsg.header.frame_id = HEADER_FRAME_ID;
+            m_pubCarrot.publish(carrotMsg);
         }
 
         // Publish estimated wall outline
