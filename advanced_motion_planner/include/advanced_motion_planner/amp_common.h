@@ -71,7 +71,8 @@ const std::string VESC_NAME = "vesc/high_level/ackermann_cmd_mux/input/default";
 #define   SteeringAngleLimit  DEG2RAD(29.4f)
 
 // LIDAR data filtering (for visibleCloud) withing following intervals:
-#define   MAX_FRONT_Range     2.5f
+//#define   MAX_FRONT_Range     2.5f
+#define   MAX_FRONT_Range     3.5
 //#define   MIN_FRONT_Range     0.10f // tested OK on 2019-04-23
 #define   MIN_FRONT_Range     0.15f
 //#define   angle_range         DEG2RAD(28.6f)  // default in BMP
@@ -99,7 +100,7 @@ const std::string VESC_NAME = "vesc/high_level/ackermann_cmd_mux/input/default";
 #define   pathWidthPitch      (carWidth_m * 0.5)
 #define   AREA_TOLERANCE      1.0e-4f
 #define   BEST_PATHS_LEN      9     // a number of paths to cache
-#define   NO_GO_MIN_DIST      MIN_FRONT_Range  // in m
+#define   NO_GO_MIN_DIST      (MIN_FRONT_Range+0.03)  // in m
 
 // misc parameters:
 // seem that VESC cannot properly manage driving att speeds lower than 0.35 m/s
