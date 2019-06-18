@@ -88,9 +88,10 @@ public:
             max_observation = 0.75f;
         }
 
-        if (wall_direction == 0) { //TODO
-            min_observation = 1 - min_observation;
-            max_observation = 1 - max_observation;
+        if (wall_direction == 0) {   // follow left wall
+            float min_observation_temp = min_observation;
+            min_observation = 1 - max_observation;
+            max_observation = 1 - min_observation_temp;
         }
 
         std::cout << "lidar_offset: " << lidar_offset << std::endl;
