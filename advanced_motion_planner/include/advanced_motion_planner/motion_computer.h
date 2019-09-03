@@ -37,6 +37,8 @@ public:
 
     AckermannMessage ackMsg;
     Direction direction;
+    Direction min_observation_direction;
+    Direction max_observation_direction;
     pcl::PointCloud<pcl::PointXYZ> map;
     pcl::PointCloud<pcl::PointXYZ> observed_points;
     pcl::PointCloud<pcl::PointXYZ> carrot;

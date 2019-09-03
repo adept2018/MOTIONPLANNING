@@ -17,7 +17,8 @@ bool WallFollower::followTheWall(const pcl::PointCloud<pcl::PointXYZ>& cloud, co
     float x = (-m_wall_distance - m_b)/m_a - m_carrot_distance;
     float y = m_a * x + m_b;
 
-    float error_angle = atanf(y/(-m_carrot_distance));
+    // float error_angle = atanf(y/(-m_carrot_distance));
+    float error_angle = atan2f(y, -m_carrot_distance);
     //float error_angle = 0.0f - atanf(m_a);
     direction = calculatePID(error_angle, dt);
 
@@ -107,16 +108,16 @@ float WallFollower::calculatePID(const float& error, const float& dt) {
 
     float output = P + I + D;
 
-    std::cout << "calculatePID output";
+    // std::cout << "calculatePID output";
     if (output < m_min_direction) {
         output = m_min_direction;
-        std::cout << " [m_min_direction]";
+        // std::cout << " [m_min_direction]";
     }
     else if (output > m_max_direction) {
         output = m_max_direction;
-        std::cout << " [m_max_direction]";
+        // std::cout << " [m_max_direction]";
     }
-    std::cout << ": " << output << std::endl;
+    // std::cout << ": " << output << std::endl;
 
     return output;
 }

@@ -35,10 +35,16 @@ bool MotionComputer::computeMotion() {
         // Isolate observation points for the wall follower
         uint16_t min_observation_point = static_cast<uint16_t>(scan.ranges.size() * parameters.min_observation);
         uint16_t max_observation_point = static_cast<uint16_t>(scan.ranges.size() * parameters.max_observation);
+
+        min_observation_direction.x = map.points[min_observation_point].x;
+        min_observation_direction.y = map.points[min_observation_point].y;
+        max_observation_direction.x = map.points[max_observation_point].x;
+        max_observation_direction.y = map.points[max_observation_point].y;
+
         observed_points = laserScanToPointCloud.scanToCloud(scan, min_observation_point, max_observation_point, parameters.min_scan_range, parameters.max_scan_range, parameters.lidar_offset, false);
 
         m_dt = scan.scan_time;
-        std::cerr << "m_dt: " << m_dt << std::endl;
+        // std::cerr << "m_dt: " << m_dt << std::endl;
 
         if (!wallFollower.followTheWall(observed_points, m_dt)) {
             std::cerr << "Failed to follow the wall - driving forward with reduced speed" << std::endl;

@@ -8,8 +8,8 @@
 
 /advanced_motion_planner/wall_direction: 1             # left = 0x0, right = 0x1
 
-/advanced_motion_planner/min_observation: 0.40
-/advanced_motion_planner/max_observation: 0.75
+/advanced_motion_planner/min_observation: 0.0 #0.55
+/advanced_motion_planner/max_observation: 0.25 #0.70
 
 /advanced_motion_planner/wall_distance: 0.1
 /advanced_motion_planner/carrot_distance: 1.00
